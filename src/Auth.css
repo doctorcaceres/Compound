@@ -1,0 +1,65 @@
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg-deep);
+  display: flex; align-items: center; justify-content: center;
+}
+.auth-container { width: 100%; max-width: 420px; padding: 0 24px; }
+.auth-logo {
+  font-family: var(--mono); font-size: 32px; font-weight: 700;
+  letter-spacing: 6px; text-transform: uppercase; text-align: center; margin-bottom: 4px;
+}
+.logo-c { color: var(--green); }
+.auth-accent-bar {
+  width: 40px; height: 2px; background: var(--accent-line);
+  margin: 0 auto 10px; border-radius: 1px;
+}
+.auth-tagline {
+  text-align: center; color: var(--text-muted); font-size: 11px;
+  margin-bottom: 40px; letter-spacing: 2px; text-transform: uppercase;
+  font-family: var(--mono);
+}
+.auth-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px;
+}
+.auth-card h2 { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+
+.account-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.type-option {
+  padding: 14px; border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; text-align: center; transition: all 0.2s; background: var(--bg-surface);
+}
+.type-option:hover { border-color: var(--text-muted); }
+.type-option.selected { border-color: var(--green); background: var(--green-glow); }
+.type-option .type-icon { font-size: 20px; margin-bottom: 4px; }
+.type-option .type-label { font-size: 13px; font-weight: 500; }
+.type-option .type-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-group input, .form-group select {
+  width: 100%; height: 44px; padding: 0 14px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text-primary);
+  font-family: var(--sans); font-size: 14px;
+  transition: border-color 0.2s; outline: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--green); }
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--bg-card); }
+
+.btn-primary {
+  width: 100%; height: 44px; border: none; border-radius: 8px;
+  background: var(--green); color: white;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-top: 8px;
+}
+.btn-primary:hover { background: var(--green-dim); }
+
+.auth-switch { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 13px; }
+.auth-switch a { color: var(--green); cursor: pointer; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }

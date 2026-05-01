@@ -1,0 +1,63 @@
+:root {
+  /* Backgrounds - CLINICAL black */
+  --bg-deep: #0A0D10;
+  --bg-card: #0F1318;
+  --bg-card-hover: #141920;
+  --bg-surface: #161C24;
+
+  /* Borders */
+  --border: #1E2733;
+  --border-light: #263040;
+
+  /* Text */
+  --text-primary: #E8ECF1;
+  --text-secondary: #8A94A6;
+  --text-muted: #5A6478;
+
+  /* CHORDIS navy */
+  --navy: #1B3A5C;
+  --navy-light: #234B74;
+  --navy-glow: rgba(27, 58, 92, 0.25);
+
+  /* CLINICAL dark green/teal */
+  --green: #1F9B73;
+  --green-dim: #1A8563;
+  --green-glow: rgba(31, 155, 115, 0.14);
+
+  /* Accent bar - exactly like CLINICAL */
+  --accent-line: #1F9B73;
+
+  /* Utility */
+  --amber: #F59E0B;
+  --red: #EF4444;
+
+  /* Fonts */
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root { min-height: 100vh; }
+
+::selection {
+  background: var(--green);
+  color: white;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
