@@ -59,6 +59,26 @@
   cursor: pointer; transition: all 0.2s; margin-top: 8px;
 }
 .btn-primary:hover { background: var(--green-dim); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-info {
+  background: var(--green-glow); color: var(--green);
+  border: 1px solid var(--green); border-radius: 8px;
+  padding: 10px 12px; font-size: 13px; margin-bottom: 16px; line-height: 1.4;
+}
+.auth-notice {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.4);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 12px 14px; font-size: 12px; line-height: 1.55;
+  margin-bottom: 16px;
+}
+.auth-notice strong { color: var(--amber); font-weight: 600; }
+.auth-notice code {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: 4px;
+  font-family: var(--mono); font-size: 11px; color: var(--text-primary);
+}
 
 .auth-switch { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 13px; }
 .auth-switch a { color: var(--green); cursor: pointer; text-decoration: none; }

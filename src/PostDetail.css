@@ -1,0 +1,77 @@
+.postdetail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.postdetail-back {
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none; color: var(--text-muted);
+  font-family: var(--sans); font-size: 13px;
+  cursor: pointer; margin-bottom: 16px; padding: 0;
+  transition: color 0.15s;
+}
+.postdetail-back:hover { color: var(--green); }
+.postdetail-back-inline {
+  background: none; border: none; color: var(--green);
+  cursor: pointer; font-family: inherit; font-size: inherit; padding: 0;
+}
+
+.postdetail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 28px 28px;
+}
+.postdetail-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.postdetail-avatar {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 14px;
+  flex-shrink: 0;
+}
+.postdetail-meta { flex: 1; min-width: 0; }
+.postdetail-author { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.postdetail-author a { color: var(--text-primary); text-decoration: none; transition: color 0.15s; }
+.postdetail-author a:hover { color: var(--green); }
+.postdetail-meta-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-muted);
+}
+.postdetail-sector {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--green);
+}
+.postdetail-dot { color: var(--text-muted); }
+.postdetail-time { font-family: var(--sans); }
+
+.postdetail-body p {
+  font-size: 15px; line-height: 1.7;
+  color: var(--text-secondary); margin-bottom: 14px;
+}
+.postdetail-body p:last-child { margin-bottom: 0; }
+
+.postdetail-sample-note {
+  margin-top: 22px;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  background: rgba(31,155,115,0.05);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .postdetail-page { padding: 16px 12px; }
+  .postdetail-card { padding: 18px 16px; }
+  .postdetail-title { font-size: 22px; }
+}

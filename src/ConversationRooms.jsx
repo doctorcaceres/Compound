@@ -1,0 +1,459 @@
+import { useEffect, useState, useCallback } from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { supabase } from './supabaseClient'
+import { makeInitials, sectorTheme, sectorLabel, timeAgo, SECTORS } from './format'
+import ScheduleMeetingModal from './ScheduleMeetingModal'
+import './ConversationRooms.css'
+
+function sectorBadge(value) {
+  return sectorLabel(value).toUpperCase()
+}
+
+function statusLabel(status) {
+  if (status === 'completed') return 'COMPLETE'
+  if (status === 'archived') return 'ARCHIVED'
+  return 'ACTIVE'
+}
+
+function deriveMilestones(status) {
+  const labels = ['Getting Started', 'In Progress', 'Review', 'Complete']
+  if (status === 'completed' || status === 'archived') {
+    return labels.map(l => ({ label: l, done: true }))
+  }
+  return labels.map((l, i) => ({ label: l, done: false, current: i === 0 }))
+}
+
+function ConversationRooms({ user }) {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [rooms, setRooms] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('all')
+  const [showCreate, setShowCreate] = useState(!!location.state?.openCreate)
+  const [newRoom, setNewRoom] = useState({ name: '', sector: SECTORS[0].value })
+  const [creating, setCreating] = useState(false)
+
+  const fetchRooms = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('conversation_rooms')
+      .select(`
+        id, name, description, sector, status, created_by, created_at,
+        participants:room_participants(id, role, profile:profiles!profile_id(id, display_name)),
+        document_count:room_documents(count)
+      `)
+      .order('created_at', { ascending: false })
+    if (error) {
+      console.warn('Rooms fetch failed:', error.message)
+      setRooms([])
+      return
+    }
+    setRooms(data || [])
+  }, [])
+
+  useEffect(() => {
+    fetchRooms().finally(() => setLoading(false))
+  }, [fetchRooms])
+
+  useEffect(() => {
+    if (location.state?.openCreate) {
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [location.pathname, location.state, navigate])
+
+  const handleCreate = async () => {
+    const name = newRoom.name.trim()
+    if (!name || creating) return
+    setCreating(true)
+    const { data, error } = await supabase
+      .from('conversation_rooms')
+      .insert({
+        name,
+        sector: newRoom.sector,
+        created_by: user.id,
+      })
+      .select()
+      .single()
+    setCreating(false)
+    if (error) { alert(error.message); return }
+    setNewRoom({ name: '', sector: SECTORS[0].value })
+    setShowCreate(false)
+    await fetchRooms()
+    if (data?.id) navigate(`/rooms/${data.id}`)
+  }
+
+  const activeRoom = id ? rooms.find(r => String(r.id) === id) : null
+
+  if (id && !loading && !activeRoom) {
+    return (
+      <div className="placeholder-page">
+        <h2>Room not found</h2>
+        <p><button className="cr-cancel" onClick={() => navigate('/rooms')}>Back to all rooms</button></p>
+      </div>
+    )
+  }
+
+  if (activeRoom) {
+    return <RoomDetail room={activeRoom} user={user} onBack={() => navigate('/rooms')} />
+  }
+
+  const filtered = filter === 'all' ? rooms : rooms.filter(r => r.status === filter)
+
+  return (
+    <div className="conversationrooms-page">
+      <div className="cr-header">
+        <div>
+          <h2>Conversation Rooms</h2>
+          <p className="cr-subtitle">{rooms.length} active rooms</p>
+        </div>
+        <button className="cr-create-btn" onClick={() => setShowCreate(true)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          New Conversation Room
+        </button>
+      </div>
+
+      {showCreate && (
+        <div className="cr-create-form">
+          <h3>Create Conversation Room</h3>
+          <div className="cr-form-row">
+            <div className="cr-form-group">
+              <label>Room Name</label>
+              <input placeholder="e.g., Solar Farm JV — 200MW" value={newRoom.name} onChange={e => setNewRoom({ ...newRoom, name: e.target.value })} />
+            </div>
+            <div className="cr-form-group">
+              <label>Sector</label>
+              <select value={newRoom.sector} onChange={e => setNewRoom({ ...newRoom, sector: e.target.value })}>
+                {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="cr-form-actions">
+            <button className="cr-cancel" onClick={() => setShowCreate(false)}>Cancel</button>
+            <button className="cr-submit" onClick={handleCreate} disabled={creating || !newRoom.name.trim()}>
+              {creating ? 'Creating…' : 'Create Room'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="cr-filters">
+        <button className={`cr-filter ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All Rooms</button>
+        <button className={`cr-filter ${filter === 'active' ? 'active' : ''}`} onClick={() => setFilter('active')}>Active</button>
+        <button className={`cr-filter ${filter === 'completed' ? 'active' : ''}`} onClick={() => setFilter('completed')}>Completed</button>
+      </div>
+
+      {loading ? (
+        <div className="cr-empty">Loading rooms…</div>
+      ) : filtered.length === 0 ? (
+        <div className="cr-empty">
+          {rooms.length === 0
+            ? 'No conversation rooms yet. Click "New Conversation Room" to create your first.'
+            : 'No rooms match this filter.'}
+        </div>
+      ) : (
+        <div className="cr-list">
+          {filtered.map(room => {
+            const participants = room.participants || []
+            const docCount = room.document_count?.[0]?.count || 0
+            const milestones = deriveMilestones(room.status)
+            return (
+              <div key={room.id} className="cr-card" onClick={() => navigate(`/rooms/${room.id}`)}>
+                <div className="cr-card-top">
+                  <div className="cr-card-sector" style={{ color: sectorTheme(room.sector).cardColor }}>{sectorBadge(room.sector)}</div>
+                  <div className={`cr-card-status ${room.status}`}>{statusLabel(room.status)}</div>
+                </div>
+                <div className="cr-card-name">{room.name}</div>
+                <div className="cr-card-progress">
+                  {milestones.map((m, i) => (
+                    <div key={i} className={`cr-milestone-dot ${m.done ? 'done' : ''} ${m.current ? 'current' : ''}`} title={m.label} />
+                  ))}
+                  <div className="cr-progress-line">
+                    <div className="cr-progress-fill" style={{ width: `${(milestones.filter(m => m.done).length / milestones.length) * 100}%` }} />
+                  </div>
+                </div>
+                <div className="cr-card-participants">
+                  {participants.slice(0, 4).map((p, i) => (
+                    <div key={i} className="cr-participant-mini" title={p.profile?.display_name}>{makeInitials(p.profile?.display_name)}</div>
+                  ))}
+                  <span className="cr-participant-count">{participants.length} participant{participants.length === 1 ? '' : 's'}</span>
+                </div>
+                <div className="cr-card-meta">
+                  <span>{docCount} document{docCount === 1 ? '' : 's'}</span>
+                  <span>&middot;</span>
+                  <span>{timeAgo(room.created_at)}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RoomDetail({ room, user, onBack }) {
+  const [activeTab, setActiveTab] = useState('overview')
+  const [participants, setParticipants] = useState([])
+  const [documents, setDocuments] = useState([])
+  const [messages, setMessages] = useState([])
+  const [creator, setCreator] = useState(null)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+
+  const fetchAll = useCallback(async () => {
+    const [partsRes, docsRes, msgsRes] = await Promise.all([
+      supabase
+        .from('room_participants')
+        .select('id, role, profile:profiles!profile_id(id, display_name, headline, sector, avatar_url)')
+        .eq('room_id', room.id),
+      supabase
+        .from('room_documents')
+        .select('id, file_name, file_size, created_at')
+        .eq('room_id', room.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('room_messages')
+        .select('id, content, created_at, sender:profiles!sender_id(id, display_name)')
+        .eq('room_id', room.id)
+        .order('created_at', { ascending: true }),
+    ])
+    setParticipants(partsRes.data || [])
+    setDocuments(docsRes.data || [])
+    setMessages(msgsRes.data || [])
+
+    const { data: c } = await supabase.from('profiles').select('display_name').eq('id', room.created_by).single()
+    setCreator(c)
+  }, [room.id, room.created_by])
+
+  useEffect(() => { fetchAll() }, [fetchAll])
+
+  const milestones = deriveMilestones(room.status)
+  const activity = creator ? [{ who: creator.display_name, what: 'created this room', when: timeAgo(room.created_at) }] : []
+
+  return (
+    <div className="room-detail">
+      <div className="room-detail-header">
+        <button className="room-back" onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+          All Conversation Rooms
+        </button>
+        <div className="room-title-row">
+          <div>
+            <div className="room-sector" style={{ color: sectorTheme(room.sector).cardColor }}>{sectorBadge(room.sector)}</div>
+            <h2>{room.name}</h2>
+            <div className="room-value">{statusLabel(room.status)}</div>
+          </div>
+          <div className="room-header-actions">
+            <button className="room-video-btn" onClick={() => setShowScheduleModal(true)}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+              Video Meeting
+            </button>
+            <button className="room-invite-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg>
+              Invite
+            </button>
+            <button className="room-upload-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+              Upload
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="room-tabs">
+        {['overview', 'conversation', 'documents', 'participants', 'activity'].map(tab => (
+          <button key={tab} className={`room-tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="room-content">
+        {activeTab === 'overview' && (
+          <div className="room-overview">
+            <div className="room-overview-main">
+              <div className="room-section">
+                <h3>Progress</h3>
+                <div className="room-milestones">
+                  {milestones.map((m, i) => (
+                    <div key={i} className={`room-ms ${m.done ? 'done' : ''} ${m.current ? 'current' : ''}`}>
+                      <div className="room-ms-indicator">
+                        {m.done ? (
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        ) : (
+                          <div className="room-ms-circle" />
+                        )}
+                      </div>
+                      <span>{m.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="room-section">
+                <h3>Recent Activity</h3>
+                {activity.length === 0 ? (
+                  <div className="room-empty">No activity yet.</div>
+                ) : activity.map((a, i) => (
+                  <div key={i} className="room-activity-item">
+                    <div className="room-activity-dot" />
+                    <div>
+                      <span className="room-activity-who">{a.who}</span> {a.what}
+                      <div className="room-activity-when">{a.when}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="room-overview-side">
+              <div className="room-section">
+                <h3>Participants</h3>
+                {participants.length === 0 ? (
+                  <div className="room-empty">No participants.</div>
+                ) : participants.map(p => (
+                  <div key={p.id} className="room-participant">
+                    <div className="room-participant-avatar">{makeInitials(p.profile?.display_name)}</div>
+                    <div>
+                      <div className="room-participant-name">{p.profile?.display_name || 'Unknown'}</div>
+                      <div className="room-participant-role">{p.role === 'owner' ? 'Owner' : (p.profile?.headline || 'Member')}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="room-section">
+                <h3>Key Documents</h3>
+                {documents.length === 0 ? (
+                  <div className="room-empty">No documents yet.</div>
+                ) : documents.slice(0, 5).map(d => (
+                  <div key={d.id} className="room-doc">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                    <div>
+                      <div className="room-doc-name">{d.file_name}</div>
+                      <div className="room-doc-meta">{d.file_size ? `${Math.round(d.file_size / 1024)} KB` : ''} &middot; {timeAgo(d.created_at)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'conversation' && (
+          <ConversationTab roomId={room.id} user={user} messages={messages} onSent={fetchAll} />
+        )}
+
+        {activeTab === 'documents' && (
+          <div className="room-documents-tab">
+            {documents.length === 0 ? (
+              <div className="room-empty">No documents uploaded yet.</div>
+            ) : documents.map(d => (
+              <div key={d.id} className="room-doc-row">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                <div className="room-doc-row-info">
+                  <div className="room-doc-row-name">{d.file_name}</div>
+                  <div className="room-doc-row-meta">{d.file_size ? `${Math.round(d.file_size / 1024)} KB` : ''} &middot; Uploaded {timeAgo(d.created_at)}</div>
+                </div>
+                <button className="room-doc-download">Download</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'participants' && (
+          <div className="room-participants-tab">
+            {participants.length === 0 ? (
+              <div className="room-empty">No participants.</div>
+            ) : participants.map(p => (
+              <div key={p.id} className="room-participant-row">
+                <div className="room-participant-avatar lg">{makeInitials(p.profile?.display_name)}</div>
+                <div>
+                  <div className="room-participant-name">{p.profile?.display_name || 'Unknown'}</div>
+                  <div className="room-participant-role">{p.role === 'owner' ? 'Owner' : (p.profile?.headline || 'Member')}</div>
+                </div>
+                <button className="btn-message-sm">Message</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'activity' && (
+          <div className="room-activity-tab">
+            {activity.length === 0 ? (
+              <div className="room-empty">No activity yet.</div>
+            ) : activity.map((a, i) => (
+              <div key={i} className="room-activity-item full">
+                <div className="room-activity-dot" />
+                <div>
+                  <span className="room-activity-who">{a.who}</span> {a.what}
+                  <div className="room-activity-when">{a.when}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <ScheduleMeetingModal
+        open={showScheduleModal}
+        onClose={() => setShowScheduleModal(false)}
+        user={user}
+        presetTitle={`${room.name} — Video Meeting`}
+        presetParticipants={participants
+          .map(p => p.profile)
+          .filter(Boolean)
+          .filter(p => p.id !== user.id)}
+        presetRoomId={room.id}
+      />
+    </div>
+  )
+}
+
+function ConversationTab({ roomId, user, messages, onSent }) {
+  const [text, setText] = useState('')
+  const [sending, setSending] = useState(false)
+
+  const send = async () => {
+    const content = text.trim()
+    if (!content || sending) return
+    setSending(true)
+    const { error } = await supabase.from('room_messages').insert({
+      room_id: roomId,
+      sender_id: user.id,
+      content,
+    })
+    setSending(false)
+    if (error) { alert(error.message); return }
+    setText('')
+    onSent?.()
+  }
+
+  return (
+    <div className="room-conv-tab">
+      <div className="room-conv-list">
+        {messages.length === 0 ? (
+          <div className="room-empty">No messages yet. Start the conversation.</div>
+        ) : messages.map(m => {
+          const mine = m.sender?.id === user.id
+          return (
+            <div key={m.id} className={`room-conv-msg ${mine ? 'sent' : 'received'}`}>
+              {!mine && <div className="room-conv-sender">{m.sender?.display_name || 'Unknown'}</div>}
+              <div className="room-conv-bubble">{m.content}</div>
+              <div className="room-conv-time">{timeAgo(m.created_at)}</div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="room-conv-input-row">
+        <input
+          placeholder="Type a message..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && send()}
+        />
+        <button onClick={send} disabled={sending || !text.trim()}>
+          {sending ? 'Sending…' : 'Send'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default ConversationRooms

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable variant: full-bleed bg, content kept inside the safe zone (centered, ~80% wide) -->
+  <rect width="512" height="512" fill="#0A0D10"/>
+  <text x="256" y="312" font-family="'Space Mono', monospace" font-size="220" font-weight="700" fill="#1F9B73" text-anchor="middle" letter-spacing="-6">C</text>
+  <rect x="226" y="356" width="60" height="5" fill="#1F9B73" rx="2"/>
+</svg>

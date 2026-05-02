@@ -4,9 +4,43 @@
 
 .main-layout {
   display: grid;
-  grid-template-columns: 280px 1fr 300px;
+  grid-template-columns: 280px 1fr;
   gap: 0;
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
   min-height: calc(100vh - 56px);
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.app-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  align-items: stretch;
+}
+.app-main {
+  min-width: 0;   /* allow children to shrink instead of overflowing */
+  min-height: calc(100vh - 56px);
+}
+
+@media (max-width: 900px) {
+  .app-body { grid-template-columns: 1fr; }
+}
+
+.placeholder-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
+.placeholder-page h2 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+.placeholder-page p { font-size: 14px; color: var(--text-muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
+
+.auth-loading {
+  color: var(--text-muted); font-family: var(--mono); font-size: 13px;
+  text-transform: uppercase; letter-spacing: 2px;
 }

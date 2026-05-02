@@ -1,45 +1,66 @@
 import { useState } from 'react'
+import { supabase } from './supabaseClient'
+import { SECTORS } from './format'
 import './Auth.css'
 
-const SECTORS = [
-  { value: 'energy', label: 'Energy & Power' },
-  { value: 'infrastructure', label: 'Infrastructure & Construction' },
-  { value: 'maritime', label: 'Maritime & Logistics' },
-  { value: 'manufacturing', label: 'Advanced Manufacturing' },
-  { value: 'climate', label: 'Climate Tech' },
-  { value: 'mining', label: 'Mining & Resources' },
-  { value: 'finance', label: 'Industrial Finance' },
-  { value: 'defense', label: 'Defense & Aerospace' },
-  { value: 'tech', label: 'Technology' },
-  { value: 'other', label: 'Other' },
+// Personal / free email-provider domains. Mirrored in the
+// extract_company_domain SQL function in 0004_company_domain.sql — keep
+// them in sync.
+const PERSONAL_DOMAINS = [
+  'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
+  'icloud.com', 'aol.com', 'protonmail.com', 'proton.me',
+  'live.com', 'msn.com', 'me.com', 'mac.com',
+  'gmx.com', 'gmx.net', 'mail.com',
+  'yandex.com', 'yandex.ru', 'fastmail.com', 'fastmail.fm',
+  'zoho.com', 'tutanota.com', 'hey.com',
 ]
 
-const PERSONAL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
-
-function Auth({ onLogin }) {
+function Auth() {
   const [mode, setMode] = useState('signup')
   const [accountType, setAccountType] = useState('company')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [sector, setSector] = useState('')
   const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [info, setInfo] = useState(null)
 
-  const handleSignup = () => {
+  const emailDomain = (email.split('@')[1] || '').toLowerCase()
+  const showPersonalEmailNotice = accountType === 'company' && !!emailDomain && PERSONAL_DOMAINS.includes(emailDomain)
+
+  const handleSignup = async () => {
+    setInfo(null)
     if (!name || !email || !password) { alert('Please fill in all fields.'); return }
     if (password.length < 8) { alert('Password must be at least 8 characters.'); return }
-    const domain = email.split('@')[1]
-    if (accountType === 'company' && PERSONAL_DOMAINS.includes(domain)) {
-      alert('Company accounts require a company email address.')
-      return
+
+    setBusy(true)
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name, sector, accountType } },
+    })
+    setBusy(false)
+
+    if (error) { alert(error.message); return }
+
+    if (!data.session) {
+      setInfo('Account created. Check your email to confirm your account, then sign in.')
+      setMode('login')
+      setPassword('')
     }
-    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-    onLogin({ name, email, sector, accountType, initials })
+    // If session exists, App's onAuthStateChange listener will pick it up automatically.
   }
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setInfo(null)
     if (!email || !password) { alert('Please fill in all fields.'); return }
-    const initials = email.slice(0, 2).toUpperCase()
-    onLogin({ name: email.split('@')[0], email, sector: 'energy', accountType: 'company', initials })
+
+    setBusy(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setBusy(false)
+
+    if (error) { alert(error.message); return }
+    // onAuthStateChange listener handles the rest.
   }
 
   return (
@@ -80,6 +101,11 @@ function Auth({ onLogin }) {
               <label>Work email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" />
             </div>
+            {showPersonalEmailNotice && (
+              <div className="auth-notice">
+                You’re creating a company account with a personal email. Your account will be fully functional, but it will show as <strong>Verification Pending</strong> until we confirm your company is real. To speed up verification, you’ll be asked to provide a company website or social media link, or supporting documentation. Accounts using a corporate email (e.g., <code>you@yourcompany.com</code>) are verified automatically.
+              </div>
+            )}
             <div className="form-group">
               <label>Sector</label>
               <select value={sector} onChange={e => setSector(e.target.value)}>
@@ -92,7 +118,9 @@ function Auth({ onLogin }) {
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" />
             </div>
 
-            <button className="btn-primary" onClick={handleSignup}>Create Account</button>
+            <button className="btn-primary" onClick={handleSignup} disabled={busy}>
+              {busy ? 'Creating…' : 'Create Account'}
+            </button>
             <div className="auth-switch">
               Already on Compound? <a onClick={() => setMode('login')}>Sign in</a>
             </div>
@@ -100,6 +128,7 @@ function Auth({ onLogin }) {
         ) : (
           <div className="auth-card">
             <h2>Sign in to Compound</h2>
+            {info && <div className="auth-info">{info}</div>}
             <div className="form-group">
               <label>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" />
@@ -108,7 +137,9 @@ function Auth({ onLogin }) {
               <label>Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Your password" />
             </div>
-            <button className="btn-primary" onClick={handleLogin}>Sign In</button>
+            <button className="btn-primary" onClick={handleLogin} disabled={busy}>
+              {busy ? 'Signing in…' : 'Sign In'}
+            </button>
             <div className="auth-switch">
               New to Compound? <a onClick={() => setMode('signup')}>Create account</a>
             </div>

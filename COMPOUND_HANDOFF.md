@@ -15,7 +15,7 @@
 **Core value proposition:** Unlike LinkedIn (general-purpose, consumer-flavored) or Bloomberg (data-only, no collaboration), Compound combines:
 1. A sector-aware professional network
 2. A content/intelligence feed scoped to industrial verticals
-3. Built-in **Deal Rooms** — collaborative spaces where parties can move from initial contact through LOI, due diligence, term sheet, and close, all on-platform.
+3. Built-in **Conversation Rooms** — collaborative spaces where parties can move from Getting Started through In Progress and Review to Complete, all on-platform.
 
 The product is currently a **frontend-only prototype** (no backend, no persistence). All data is in-memory React state seeded from hardcoded sample arrays.
 
@@ -111,7 +111,7 @@ A repeating convention across components:
 | Mining | dark olive `#2F3D25` bg | — |
 | Finance | `--amber` text | — |
 
-These are not centralized — they're inlined into the seed data in [Feed.jsx](src/Feed.jsx), [Network.jsx](src/Network.jsx), [Messaging.jsx](src/Messaging.jsx), [DealRooms.jsx](src/DealRooms.jsx). **First refactor candidate** when wiring real data: extract a single sector-style map.
+These are not centralized — they're inlined into the seed data in [Feed.jsx](src/Feed.jsx), [Network.jsx](src/Network.jsx), [Messaging.jsx](src/Messaging.jsx), [ConversationRooms.jsx](src/ConversationRooms.jsx). **First refactor candidate** when wiring real data: extract a single sector-style map.
 
 ### 3.4 Typography
 
@@ -136,7 +136,7 @@ A single keyframe `fadeIn` is defined globally in [index.css:60](src/index.css:6
 │  renderPage() switches on activePage:                       │
 │    'feed'      → LeftSidebar + Feed + RightSidebar          │
 │    'network'   → Network                                    │
-│    'dealrooms' → DealRooms                                  │
+│    'conversationrooms' → ConversationRooms                                  │
 │    'messaging' → Messaging                                  │
 │    'profile'   → Profile (with optional `target`)           │
 └─────────────────────────────────────────────────────────────┘
@@ -149,7 +149,7 @@ Three pieces of state live in `App`:
 | State | Type | Purpose |
 |---|---|---|
 | `user` | `{ name, email, sector, accountType, initials }` \| `null` | Auth gate. Null = show Auth; populated = show app. |
-| `activePage` | `'feed' \| 'network' \| 'dealrooms' \| 'messaging' \| 'profile'` | Active view. |
+| `activePage` | `'feed' \| 'network' \| 'conversationrooms' \| 'messaging' \| 'profile'` | Active view. |
 | `profileTarget` | person object \| `null` | If null + activePage='profile' → show *own* profile. If set → view *that* person's profile. |
 
 Helper `openProfile(person)` sets both `profileTarget` and switches the page in one call. Header's avatar click calls `openProfile(null)` to view your own profile.
@@ -163,7 +163,7 @@ grid-template-columns: 280px 1fr 300px;   /* left | center | right */
 max-width: 1400px;
 ```
 
-This is the LinkedIn-style triple-pane layout (left rail, content feed, right rail). Network/Messaging/DealRooms/Profile each define their own internal layout instead of using this grid.
+This is the LinkedIn-style triple-pane layout (left rail, content feed, right rail). Network/Messaging/ConversationRooms/Profile each define their own internal layout instead of using this grid.
 
 ---
 
@@ -202,7 +202,7 @@ This drives the avatar circles everywhere.
 
 Top nav bar. Logo (clickable → feed), 4 nav buttons, search bar (currently controlled-input only — no search action wired), user avatar (clickable → own profile).
 
-**Nav items:** Feed, Network, Deal Rooms, Messages.
+**Nav items:** Feed, Network, Conversation Rooms, Messages.
 
 The logo is rendered as `<span class="logo-c">C</span>ompound` with a styled `.logo-bar` underline element — this is the recurring brand mark.
 
@@ -212,7 +212,7 @@ Three blocks:
 
 1. **Profile mini card** — avatar, name, sector role, sector tag, follower/post counts (both currently `0`).
 
-2. **Folders** — user-defined collections (default seeded: "Saved Companies", "Deal Pipeline", "Research"). `addFolder()` uses `prompt()` for the name and picks a random color from the palette. Counts are placeholders (always 0).
+2. **Folders** — user-defined collections (default seeded: "Saved Companies", "Pipeline", "Research"). `addFolder()` uses `prompt()` for the name and picks a random color from the palette. Counts are placeholders (always 0).
 
 3. **Google Search widget** — *this is the most non-trivial component in the sidebar.* It is **not** real Google search.
 
@@ -244,7 +244,7 @@ Three widgets:
 
 1. **Messages preview** — three hardcoded conversation snippets with a "View all" link that calls `onOpenMessages` (switches to Messaging page).
 2. **AI Intelligence Feed** — three hardcoded news items (EU hydrogen corridor, Maersk ammonia, NEOM rail). Tagged as "AI Intelligence" but is currently static content.
-3. **Collab CTA** — "Start a Collaboration" → calls `onOpenDealRooms`.
+3. **Collab CTA** — "Start a Collaboration" → calls `onOpenConversationRooms`.
 
 ### 5.6 `Network.jsx` ([src/Network.jsx](src/Network.jsx))
 
@@ -280,7 +280,7 @@ Each conversation has online status, sector tag, and pre-built `messages[]` arra
 
 **Send action:** appends `{from: 'me', text, time: 'now'}` to both `conversations[i].messages` and `activeConvo.messages`, updates `lastMessage` preview. Pressing Enter sends (no Shift+Enter for newline yet).
 
-### 5.8 `DealRooms.jsx` ([src/DealRooms.jsx](src/DealRooms.jsx))
+### 5.8 `ConversationRooms.jsx` ([src/ConversationRooms.jsx](src/ConversationRooms.jsx))
 
 The product's most distinctive feature. Two screens in one component: list view + detail view.
 
@@ -288,16 +288,16 @@ The product's most distinctive feature. Two screens in one component: list view 
 
 | # | Name | Status | Value | Stage | Participants |
 |---|---|---|---|---|---|
-| 1 | North Sea Floating Wind — 500MW | active | $1.2B | Due Diligence | Equinor, Aker BP, Vestas |
-| 2 | Green Steel Supply Agreement — SSAB | active | $340M | Negotiation | ArcelorMittal, SSAB |
-| 3 | Mozambique LNG Terminal — Phase 2 | active | $2.1B | LOI | Terra Firma, BHP |
-| 4 | Copper Recycling Offtake — Trafigura | invited | $85M | Initial Contact | Trafigura |
+| 1 | North Sea Floating Wind — 500MW | active | $1.2B | In Progress | Equinor, Aker BP, Vestas |
+| 2 | Green Steel Supply Agreement — SSAB | active | $340M | Review | ArcelorMittal, SSAB |
+| 3 | Mozambique LNG Terminal — Phase 2 | active | $2.1B | Getting Started | Terra Firma, BHP |
+| 4 | Copper Recycling Offtake — Trafigura | invited | $85M | Getting Started | Trafigura |
 
 Each room carries `participants[]`, `documents[]`, `milestones[]` (4-stage pipeline), and `activity[]` log.
 
 **List view:**
 - Header with total count + crude pipeline-value sum in the subtitle.
-- "+ New Deal Room" button toggles an inline create form (name, sector, value) — currently the submit just closes the form (no persistence).
+- "+ New Conversation Room" button toggles an inline create form (name, sector, value) — currently the submit just closes the form (no persistence).
 - Filter chips: All / Active / Invited.
 - Card grid — each card: sector label, status badge, name, value, milestone progress dots + fill bar, participant avatars, document count, last activity timestamp.
 
@@ -309,9 +309,9 @@ Each room carries `participants[]`, `documents[]`, `milestones[]` (4-stage pipel
 - Participants tab — full list with Message buttons.
 - Activity tab — full activity log.
 
-**Rationale for milestone schema:** Each room defines its own `milestones[]` array of `{label, done, current}`. There's no fixed schema — different deal types have different stage names (LOI → Due Diligence → Term Sheet → Close vs. Initial Contact → Technical Review → Negotiation → Contract Signed). This is intentionally flexible for the prototype but will need consolidation when you wire real persistence (likely converging on a small set of canonical pipelines per deal type).
+**Rationale for milestone schema:** Each room defines its own `milestones[]` array of `{label, done, current}`. The current seed data uses neutral defaults (Getting Started → In Progress → Review → Complete), but the schema is intentionally flexible — rooms can supply any sequence of stage labels. This is intentionally open for the prototype but will need consolidation when you wire real persistence (likely converging on a small set of canonical pipelines per room type).
 
-**Pipeline-value calculation** (DealRooms.jsx:129) is brittle — it parses string values like `"$1.2B"` by stripping symbols and multiplying by 1000 if it sees `B`. Fragile if a value uses decimals like `$1.25B` (still works, but `$1B500M` style would not). Replace with structured numeric fields when wiring backend.
+**Pipeline-value calculation** (ConversationRooms.jsx:129) is brittle — it parses string values like `"$1.2B"` by stripping symbols and multiplying by 1000 if it sees `B`. Fragile if a value uses decimals like `$1.25B` (still works, but `$1B500M` style would not). Replace with structured numeric fields when wiring backend.
 
 ### 5.9 `Profile.jsx` ([src/Profile.jsx](src/Profile.jsx))
 
@@ -320,13 +320,13 @@ Polymorphic — same component renders **own profile** (`target` is null) and **
 **Header card:**
 - Big avatar, name, headline (editable when own profile), location (editable), sector badge.
 - Right side: "Edit Profile" toggle on own; "Connect" + "Message" on others.
-- Stats row: connections (142), posts (28), deal rooms (4), profile views (847) — all hardcoded.
+- Stats row: connections (142), posts (28), rooms (4), profile views (847) — all hardcoded.
 
 **About section** — bio textarea editable on own profile.
 
-**Tabs:** Activity / Posts / Deal Rooms.
+**Tabs:** Activity / Posts / Rooms.
 
-`SAMPLE_ACTIVITY` is shared across all profiles. Posts tab filters to `type === 'post'`. Deal Rooms tab shows 3 hardcoded room cards which navigate to the Deal Rooms page on click.
+`SAMPLE_ACTIVITY` is shared across all profiles. Posts tab filters to `type === 'post'`. Rooms tab shows 3 hardcoded room cards which navigate to the Conversation Rooms page on click.
 
 **Sidebar:**
 - Contact (email, website)
@@ -341,7 +341,7 @@ Polymorphic — same component renders **own profile** (`target` is null) and **
 
 ### 6.1 Avatars
 
-Pattern: 2-letter `initials` + sector-derived `bg` color. Used in profile mini, person cards, message threads, deal-room participants. No image upload anywhere yet.
+Pattern: 2-letter `initials` + sector-derived `bg` color. Used in profile mini, person cards, message threads, conversation-room participants. No image upload anywhere yet.
 
 ### 6.2 Iconography
 
@@ -389,8 +389,8 @@ This is a known limitation of the current architecture (state lives in leaf comp
 | [src/Network.css](src/Network.css) | 253 | — |
 | [src/Messaging.jsx](src/Messaging.jsx) | 191 | Conversation list + active chat |
 | [src/Messaging.css](src/Messaging.css) | 274 | — |
-| [src/DealRooms.jsx](src/DealRooms.jsx) | 356 | List + detail (4 tabs) |
-| [src/DealRooms.css](src/DealRooms.css) | 366 | — |
+| [src/ConversationRooms.jsx](src/ConversationRooms.jsx) | 356 | List + detail (4 tabs) |
+| [src/ConversationRooms.css](src/ConversationRooms.css) | 366 | — |
 | [src/Profile.jsx](src/Profile.jsx) | 243 | Polymorphic own/other profile |
 | [src/Profile.css](src/Profile.css) | 248 | — |
 
@@ -410,9 +410,9 @@ To save the next developer a half-day of trial-and-error, here's an explicit map
 - Feed: per-post like increment
 - Network: search filter, sector chip filter, connect toggle, view-profile click
 - Messaging: switch conversation, send message, conversation search
-- Deal Rooms: filter (all/active/invited), open room, switch tabs inside a room
-- Deal Rooms: open create-form (does not persist)
-- Profile: edit toggle (in-memory only), tab switching, link to Deal Rooms page
+- Conversation Rooms: filter (all/active/invited), open room, switch tabs inside a room
+- Conversation Rooms: open create-form (does not persist)
+- Profile: edit toggle (in-memory only), tab switching, link to Conversation Rooms page
 - Left sidebar: add folder via `prompt()`, "Google" search (templated, opens real Google in new tab)
 
 ### Decorative / not wired
@@ -421,8 +421,8 @@ To save the next developer a half-day of trial-and-error, here's an explicit map
 - Right-sidebar message previews aren't synced with the actual Messaging conversations
 - Right-sidebar AI Intelligence Feed (static)
 - Messaging: voice/video/more buttons, attach button
-- Deal Rooms: Invite, Upload, Download, Message-from-room buttons
-- Deal Rooms create form: form closes without persisting
+- Conversation Rooms: Invite, Upload, Download, Message-from-room buttons
+- Conversation Rooms create form: form closes without persisting
 - Profile: Connect / Message buttons on others' profiles
 - Profile stats numbers (all hardcoded except `connections` count comes from a state in Network that resets on navigation — they don't share state)
 
@@ -430,15 +430,15 @@ To save the next developer a half-day of trial-and-error, here's an explicit map
 
 ## 9. Known Limitations & First Things to Fix
 
-1. **No persistence whatsoever.** Reload = full reset. Highest-leverage fix: a localStorage layer behind `user`, `posts`, `connections`, `conversations`, `dealRooms` so demos survive a refresh.
+1. **No persistence whatsoever.** Reload = full reset. Highest-leverage fix: a localStorage layer behind `user`, `posts`, `connections`, `conversations`, `rooms` so demos survive a refresh.
 2. **State doesn't survive navigation.** Posts/connections/messages are scoped to leaf components. Lift to App.jsx or introduce a Context.
 3. **Sector style map is duplicated.** The `{bg, sectorColor, sectorText}` triplet is inlined into every seed array. Centralize as `getSectorStyle(sector)`.
-4. **Pipeline-value parsing is brittle** ([DealRooms.jsx:129](src/DealRooms.jsx:129)). Replace string `"$1.2B"` with `{currency, amountUsd}`.
+4. **Pipeline-value parsing is brittle** ([ConversationRooms.jsx:129](src/ConversationRooms.jsx:129)). Replace string `"$1.2B"` with `{currency, amountUsd}`.
 5. **Fake search.** [LeftSidebar.jsx:30](src/LeftSidebar.jsx:30) makes a request that always fails by design. When a real CSE key exists, drop the templated fallback.
 6. **No account-type effects on UI past signup.** The `accountType` field is captured but barely used — Profile shows `'Independent'` for individuals; otherwise the whole app treats both identically. Real product behavior will likely diverge significantly between Company and Individual accounts.
-7. **No routing.** Direct-linking to `/dealrooms/3` or sharing a profile URL is impossible. React Router becomes essential before any external sharing.
+7. **No routing.** Direct-linking to `/conversationrooms/3` or sharing a profile URL is impossible. React Router becomes essential before any external sharing.
 8. **No error/empty/loading states** beyond the search widget. Consider before any real network calls land.
-9. **No accessibility audit.** Buttons are real `<button>`s but several `<a onClick>` handlers exist (Auth's mode switch, deal-room cards), focus management is untested, color contrast on `--text-muted` against `--bg-card` is borderline.
+9. **No accessibility audit.** Buttons are real `<button>`s but several `<a onClick>` handlers exist (Auth's mode switch, conversation-room cards), focus management is untested, color contrast on `--text-muted` against `--bg-card` is borderline.
 10. **`prompt()` for folder name** ([LeftSidebar.jsx:86](src/LeftSidebar.jsx:86)) — replace with a proper modal before any user-facing release.
 11. **No build/lint config beyond Vite defaults.** No ESLint, Prettier, Husky. Add before the team grows past 1.
 
@@ -455,7 +455,7 @@ A reasonable phasing if the goal is to take this from prototype → MVP:
 
 **Phase 2 — real backend (1–2 weeks)**
 - Pick a stack (Supabase is the fastest for this kind of CRUD-heavy social app; alternative: Postgres + tRPC + Prisma)
-- Schema: users, companies, posts, connections, conversations, messages, deal_rooms, deal_room_participants, deal_room_documents, deal_room_milestones, deal_room_activity
+- Schema: users, companies, posts, connections, conversations, messages, conversation_rooms, conversation_room_participants, conversation_room_documents, conversation_room_milestones, conversation_room_activity
 - Replace all seeded arrays with fetch hooks
 - Real auth (magic link + corporate-domain enforcement on the server)
 
@@ -469,7 +469,7 @@ A reasonable phasing if the goal is to take this from prototype → MVP:
 
 **Phase 4 — differentiate**
 - AI Intelligence Feed actually pulls from sector-specific RSS/news APIs and ranks by user's sector
-- Deal Room AI assistant — summarize uploaded docs, flag missing milestones
+- Conversation Room AI assistant — summarize uploaded docs, flag missing milestones
 - Sector-graph: who's connected to whom across the industrial network
 
 ---
@@ -477,12 +477,12 @@ A reasonable phasing if the goal is to take this from prototype → MVP:
 ## 11. Glossary
 
 - **Compound** — product name; metaphor combines "industrial compound" (chemistry/site) with "compounding" (network/value growth).
-- **Deal Room** — collaborative space tied to a single transaction. Has participants, documents, milestones, activity.
+- **Conversation Room** — collaborative space tied to a single transaction. Has participants, documents, milestones, activity.
 - **Sector** — top-level vertical filter; one of the 10 enums in [Auth.jsx:4](src/Auth.jsx:4).
 - **CLINICAL** — internal codename for the dark/teal palette family.
 - **CHORDIS** — internal codename for the navy palette family.
 - **Sector chip** — pill-style filter button used on Network and elsewhere.
-- **Milestone dots** — small circles on a Deal Room card showing pipeline progress; filled = done, ringed = current.
+- **Milestone dots** — small circles on a Conversation Room card showing pipeline progress; filled = done, ringed = current.
 
 ---
 

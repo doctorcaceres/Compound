@@ -18,6 +18,20 @@
 }
 .network-header h2 { font-size: 22px; font-weight: 600; }
 .network-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.network-empty { padding: 32px; text-align: center; color: var(--text-muted); font-size: 13px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
+
+@media (max-width: 768px) {
+  .network-page { grid-template-columns: 1fr; }
+  .network-sidebar { display: none; }
+  .network-main { padding: 16px 12px; border-right: none; }
+  .network-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  .network-search { width: 100%; }
+  .sector-filters { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .sector-chip { white-space: nowrap; flex-shrink: 0; }
+  .people-grid { grid-template-columns: 1fr; gap: 10px; }
+  .person-card { padding: 14px; }
+  .btn-connect, .btn-message, .btn-connected, .btn-view { min-height: 40px; }
+}
 .network-search {
   display: flex;
   align-items: center;
