@@ -142,9 +142,15 @@
 }
 .chat-header-avatar {
   width: 38px; height: 38px;
-  border-radius: 10px;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700;
+}
+.chat-header-avatar.chat-header-avatar-company {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  font-size: 15px;
+  border: 1px solid var(--border);
 }
 .chat-header-name { font-size: 15px; font-weight: 600; }
 .chat-header-sector {

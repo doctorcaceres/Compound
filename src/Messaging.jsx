@@ -85,7 +85,7 @@ function Messaging({ user }) {
     const fetchActive = async () => {
       setLoadingActive(true)
       const [{ data: profile }, { data: msgs, error: msgsErr }] = await Promise.all([
-        supabase.from('profiles').select('id, display_name, sector, headline, avatar_url').eq('id', paramOtherId).maybeSingle(),
+        supabase.from('profiles').select('id, display_name, sector, headline, avatar_url, account_type').eq('id', paramOtherId).maybeSingle(),
         supabase
           .from('messages')
           .select('id, sender_id, recipient_id, content, room_context_id, is_read, created_at')
@@ -318,7 +318,10 @@ function Messaging({ user }) {
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
                 </button>
-                <div className="chat-header-avatar" style={{ background: otherSectorTheme.sectorColor, color: otherSectorTheme.sectorText }}>
+                <div
+                  className={`chat-header-avatar ${activeProfile.account_type === 'company' ? 'chat-header-avatar-company' : ''}`}
+                  style={{ background: otherSectorTheme.sectorColor, color: otherSectorTheme.sectorText }}
+                >
                   {makeInitials(activeProfile.display_name)}
                 </div>
                 <div>

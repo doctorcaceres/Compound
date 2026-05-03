@@ -21,6 +21,10 @@
   display: grid;
   grid-template-columns: 1fr 340px;
   align-items: stretch;
+  /* Cap the entire shell width and center it so the chatpanel doesn't sit
+     flush against the right edge with all dead space dumped on the left. */
+  max-width: 1440px;
+  margin: 0 auto;
 }
 .app-main {
   min-width: 0;   /* allow children to shrink instead of overflowing */
@@ -28,7 +32,7 @@
 }
 
 @media (max-width: 900px) {
-  .app-body { grid-template-columns: 1fr; }
+  .app-body { grid-template-columns: 1fr; max-width: none; }
 }
 
 .placeholder-page {

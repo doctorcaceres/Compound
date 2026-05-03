@@ -54,7 +54,7 @@ function PostDetail() {
     const run = async () => {
       const { data, error } = await supabase
         .from('posts')
-        .select('id, content, sector, post_type, created_at, author:profiles!author_id(id, display_name, account_type, sector, headline)')
+        .select('id, content, sector, post_type, image_url, created_at, author:profiles!author_id(id, display_name, account_type, sector, headline)')
         .eq('id', id)
         .maybeSingle()
       if (!active) return
@@ -66,6 +66,7 @@ function PostDetail() {
       setPost({
         id: data.id,
         content: data.content,
+        image_url: data.image_url || null,
         sector_value: data.sector,
         sector_label: sectorLabel(data.sector).toUpperCase(),
         created_at: data.created_at,
@@ -129,6 +130,12 @@ function PostDetail() {
             <p key={i}>{para}</p>
           ))}
         </div>
+
+        {post.image_url && (
+          <div className="postdetail-image-wrap">
+            <img src={post.image_url} alt="" className="postdetail-image" />
+          </div>
+        )}
 
         {post.is_sample && (
           <div className="postdetail-sample-note">

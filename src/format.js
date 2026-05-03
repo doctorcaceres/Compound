@@ -30,6 +30,7 @@ export const SECTORS = [
   { value: 'nonprofit',     label: 'Nonprofit & NGO' },
   { value: 'profservices',  label: 'Professional Services' },
   { value: 'biotech',       label: 'Biotech & Life Sciences' },
+  { value: 'other',         label: 'Other' },
 ]
 
 const SECTOR_LOOKUP = SECTORS.reduce((acc, s) => { acc[s.value] = s.label; return acc }, {})

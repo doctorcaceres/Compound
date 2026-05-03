@@ -108,10 +108,19 @@
 .person-card.connected { border-color: var(--green); border-style: solid; }
 .person-avatar {
   width: 52px; height: 52px;
-  border-radius: 12px;
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; font-weight: 700; color: white;
   margin: 0 auto 12px;
+}
+/* Companies on the network grid get a chunkier rounded-square avatar so they
+   read as organizations rather than people. */
+.person-avatar.person-avatar-company {
+  width: 64px; height: 64px;
+  border-radius: 14px;
+  font-size: 19px;
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
 }
 .person-name {
   font-size: 14px;

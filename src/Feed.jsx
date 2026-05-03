@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import { makeInitials, sectorTheme, sectorLabel, timeAgo } from './format'
 import './Feed.css'
+
+const ACCEPTED_IMAGE_TYPES = 'image/jpeg,image/png,image/webp,image/gif'
 
 function fb(id, name, initials, sectorValue, body, time, likes, comments) {
   const t = sectorTheme(sectorValue)
@@ -10,6 +12,8 @@ function fb(id, name, initials, sectorValue, body, time, likes, comments) {
     id,
     name,
     initials,
+    // All sample posts are companies showcasing org-style content.
+    isCompany: true,
     sector: sectorLabel(sectorValue).toUpperCase(),
     sectorColor: t.sectorColor,
     sectorText: t.sectorText,
@@ -64,7 +68,7 @@ function Post({ post }) {
     <div className="post">
       <div className="post-header post-clickable" onClick={goToPost} role="link" tabIndex={0}
            onKeyDown={(e) => { if (e.key === 'Enter') goToPost() }}>
-        <div className="post-avatar" style={{ background: post.avatarUrl ? 'transparent' : post.bg }}>
+        <div className={`post-avatar ${post.isCompany ? 'post-avatar-company' : ''}`} style={{ background: post.avatarUrl ? 'transparent' : post.bg }}>
           {post.avatarUrl
             ? <img src={post.avatarUrl} alt="" className="post-avatar-img" />
             : post.initials}
@@ -81,11 +85,38 @@ function Post({ post }) {
            onKeyDown={(e) => { if (e.key === 'Enter') goToPost() }}>
         {post.body}
       </div>
+      {post.imageUrl && (
+        <div className="post-image-wrap post-clickable" onClick={goToPost} role="link" tabIndex={-1}>
+          <img src={post.imageUrl} alt="" className="post-image" />
+        </div>
+      )}
       <div className="post-actions" onClick={stop}>
-        <button className="post-action" onClick={() => setLikes(likes + 1)}>&#9650; <span>{likes}</span></button>
-        <button className="post-action" onClick={goToPost}>&#128172; <span>{post.comments || 0}</span> replies</button>
-        <button className="post-action">&#128279; Share</button>
-        <button className="post-action">&#128278; Save</button>
+        <button className="post-action" onClick={() => setLikes(likes + 1)} title="Upvote">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+          <span>{likes}</span>
+        </button>
+        <button className="post-action" onClick={goToPost} title="Replies">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>{post.comments || 0}</span> replies
+        </button>
+        <button className="post-action" title="Share">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+          Share
+        </button>
+        <button className="post-action" title="Save">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+          Save
+        </button>
       </div>
     </div>
   )
@@ -100,11 +131,13 @@ function adaptPost(p) {
     name,
     initials: makeInitials(name),
     avatarUrl: p.author?.avatar_url || null,
+    isCompany: p.author?.account_type === 'company',
     sector: sectorLabel(sector).toUpperCase(),
     sectorColor: theme.sectorColor,
     sectorText: theme.sectorText,
     bg: theme.bg,
     body: p.content,
+    imageUrl: p.image_url || null,
     time: timeAgo(p.created_at),
     likes: 0,
     comments: 0,
@@ -116,12 +149,15 @@ function Feed({ user }) {
   const [postText, setPostText] = useState('')
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
+  const [image, setImage] = useState(null) // { file, previewUrl }
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageError, setImageError] = useState(null)
+  const fileInputRef = useRef(null)
 
   const fetchPosts = async () => {
     const { data, error } = await supabase
       .from('posts')
-      .select('id, content, sector, post_type, created_at, author:profiles!author_id (id, display_name, sector, avatar_url)')
-      // already selecting avatar_url — adaptPost picks it up
+      .select('id, content, sector, post_type, image_url, created_at, author:profiles!author_id (id, display_name, sector, avatar_url, account_type)')
       .order('created_at', { ascending: false })
       .limit(50)
     if (error) {
@@ -136,19 +172,63 @@ function Feed({ user }) {
     fetchPosts().finally(() => setLoading(false))
   }, [])
 
+  const onImagePicked = (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setImageError(null)
+    setImage({ file, previewUrl: URL.createObjectURL(file) })
+  }
+
+  const clearImage = () => {
+    if (image?.previewUrl) URL.revokeObjectURL(image.previewUrl)
+    setImage(null)
+    setImageError(null)
+  }
+
   const createPost = async () => {
     const text = postText.trim()
-    if (!text || posting) return
+    if ((!text && !image) || posting) return
     setPosting(true)
+    setImageError(null)
+
+    let imageUrl = null
+    if (image?.file) {
+      setUploadingImage(true)
+      try {
+        const ext = (image.file.name.split('.').pop() || 'jpg').toLowerCase()
+        const path = `${user.id}/${Date.now()}.${ext}`
+        const { error: upErr } = await supabase.storage
+          .from('post-images')
+          .upload(path, image.file, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: image.file.type || undefined,
+          })
+        if (upErr) throw upErr
+        const { data } = supabase.storage.from('post-images').getPublicUrl(path)
+        imageUrl = data.publicUrl
+      } catch (err) {
+        setUploadingImage(false)
+        setPosting(false)
+        setImageError(`Image upload failed: ${err.message}`)
+        return
+      } finally {
+        setUploadingImage(false)
+      }
+    }
+
     const { error } = await supabase.from('posts').insert({
       author_id: user.id,
       content: text,
       sector: user.sector || null,
       post_type: 'update',
+      image_url: imageUrl,
     })
     setPosting(false)
     if (error) { alert(error.message); return }
     setPostText('')
+    clearImage()
     await fetchPosts()
   }
 
@@ -164,16 +244,59 @@ function Feed({ user }) {
           value={postText}
           onChange={e => setPostText(e.target.value)}
         />
+        {image && (
+          <div className="composer-image-preview">
+            <img src={image.previewUrl} alt="" />
+            <button
+              type="button"
+              className="composer-image-remove"
+              onClick={clearImage}
+              aria-label="Remove image"
+              disabled={uploadingImage}
+            >×</button>
+          </div>
+        )}
+        {imageError && <div className="composer-image-error">{imageError}</div>}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_IMAGE_TYPES}
+          style={{ display: 'none' }}
+          onChange={onImagePicked}
+        />
         <div className="composer-bar">
           <div className="composer-actions">
-            <button title="Attach document">&#128206;</button>
-            <button title="Tag sector">&#127919;</button>
-            <button title="Mark as opportunity">&#128176;</button>
+            <button
+              type="button"
+              title="Attach an image"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={posting}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <span>Image</span>
+            </button>
+            <button type="button" title="Tag sector">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+              <span>Sector</span>
+            </button>
+            <button type="button" title="Mark as opportunity">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
+              </svg>
+              <span>Opportunity</span>
+            </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span className="char-count">{postText.length}/500</span>
-            <button className="btn-post" onClick={createPost} disabled={posting || !postText.trim()}>
-              {posting ? 'Posting…' : 'Post'}
+            <button className="btn-post" onClick={createPost} disabled={posting || (!postText.trim() && !image)}>
+              {uploadingImage ? 'Uploading…' : posting ? 'Posting…' : 'Post'}
             </button>
           </div>
         </div>

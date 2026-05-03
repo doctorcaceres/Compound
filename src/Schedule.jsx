@@ -5,10 +5,17 @@ import { makeInitials, sectorTheme, timeAgo } from './format'
 import ScheduleMeetingModal from './ScheduleMeetingModal'
 import './Schedule.css'
 
-function formatMeetingTime(iso) {
+function formatMeetingTime(iso, tz) {
   const d = new Date(iso)
-  const date = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
-  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  const dateOpts = { weekday: 'short', month: 'short', day: 'numeric' }
+  const timeOpts = { hour: 'numeric', minute: '2-digit' }
+  if (tz) {
+    dateOpts.timeZone = tz
+    timeOpts.timeZone = tz
+    timeOpts.timeZoneName = 'short'
+  }
+  const date = d.toLocaleDateString(undefined, dateOpts)
+  const time = d.toLocaleTimeString(undefined, timeOpts)
   return { date, time }
 }
 
@@ -20,7 +27,10 @@ function durationLabel(min) {
 }
 
 // Build a Google Calendar "create event" URL pre-populated from a meeting.
-// Format: dates=YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ in UTC.
+// Format: dates=YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ in UTC. We pass the
+// meeting's stored timezone via the `ctz` param so the GCal UI shows the
+// event in the originator's intended zone even though the timestamps
+// themselves are in UTC.
 function googleCalendarUrl(meeting) {
   const start = new Date(meeting.scheduled_at)
   const end = new Date(start.getTime() + (meeting.duration_minutes || 60) * 60 * 1000)
@@ -31,11 +41,12 @@ function googleCalendarUrl(meeting) {
     dates: `${fmt(start)}/${fmt(end)}`,
     details: meeting.note || 'Scheduled via Compound.',
   })
+  if (meeting.timezone) params.set('ctz', meeting.timezone)
   return `https://calendar.google.com/calendar/render?${params.toString()}`
 }
 
 function MeetingCard({ meeting, onJoin, onNavigateToRoom }) {
-  const { date, time } = formatMeetingTime(meeting.scheduled_at)
+  const { date, time } = formatMeetingTime(meeting.scheduled_at, meeting.timezone)
   const participants = meeting.participants || []
   const showAvatars = participants.slice(0, 4)
   const remaining = participants.length - showAvatars.length
@@ -123,7 +134,7 @@ function Schedule({ user }) {
     const { data, error } = await supabase
       .from('meetings')
       .select(`
-        id, title, scheduled_at, duration_minutes, note, status, room_id, created_at, created_by,
+        id, title, scheduled_at, duration_minutes, timezone, note, status, room_id, created_at, created_by,
         participants:meeting_participants(profile_id, status, profile:profiles!profile_id(id, display_name, sector, avatar_url))
       `)
       .order('scheduled_at', { ascending: true })

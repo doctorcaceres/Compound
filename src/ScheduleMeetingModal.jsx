@@ -9,6 +9,63 @@ const DURATIONS = [
   { value: 120, label: '2 hours' },
 ]
 
+const COMMON_TIMEZONES = [
+  { value: 'America/New_York',     label: 'US Eastern (ET)' },
+  { value: 'America/Chicago',      label: 'US Central (CT)' },
+  { value: 'America/Denver',       label: 'US Mountain (MT)' },
+  { value: 'America/Los_Angeles',  label: 'US Pacific (PT)' },
+  { value: 'America/Sao_Paulo',    label: 'Brazil (BRT)' },
+  { value: 'America/Mexico_City',  label: 'Mexico (CST)' },
+  { value: 'America/Asuncion',     label: 'Paraguay (PYT)' },
+  { value: 'Europe/London',        label: 'UK / GMT' },
+  { value: 'Europe/Paris',         label: 'Central Europe (CET)' },
+  { value: 'Europe/Athens',        label: 'Eastern Europe (EET)' },
+  { value: 'Africa/Lagos',         label: 'West Africa (WAT)' },
+  { value: 'Africa/Johannesburg',  label: 'South Africa (SAST)' },
+  { value: 'Asia/Dubai',           label: 'Gulf (GST)' },
+  { value: 'Asia/Kolkata',         label: 'India (IST)' },
+  { value: 'Asia/Singapore',       label: 'Singapore (SGT)' },
+  { value: 'Asia/Shanghai',        label: 'China (CST)' },
+  { value: 'Asia/Tokyo',           label: 'Japan (JST)' },
+  { value: 'Australia/Sydney',     label: 'Australia East (AEST)' },
+  { value: 'UTC',                  label: 'UTC' },
+]
+
+function detectTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  } catch {
+    return 'UTC'
+  }
+}
+
+// Build an ISO string interpreting <date>T<time> in the given IANA tz.
+// Browser Date constructor uses the LOCAL machine zone, so we offset by the
+// difference between the local zone and the chosen zone.
+function buildScheduledAtISO(date, time, tz) {
+  // Naive approach using Intl: build a UTC-style date from the chosen tz.
+  // We compute the offset minutes for that tz at the chosen instant and apply.
+  const naive = new Date(`${date}T${time}:00`)
+  // Format the naive time in the target tz to find its UTC equivalent.
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false,
+  })
+  // Find the offset by comparing what the naive instant looks like in tz vs UTC.
+  const parts = fmt.formatToParts(naive).reduce((acc, p) => {
+    if (p.type !== 'literal') acc[p.type] = p.value
+    return acc
+  }, {})
+  const asInTz = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour) % 24, Number(parts.minute), Number(parts.second || 0)
+  )
+  const offsetMs = asInTz - naive.getTime()
+  return new Date(naive.getTime() - offsetMs).toISOString()
+}
+
 function defaultDateTime() {
   // Default to next round half-hour, today
   const d = new Date()
@@ -32,9 +89,11 @@ function ScheduleMeetingModal({
   onScheduled,
 }) {
   const initialDT = defaultDateTime()
+  const initialTz = detectTimezone()
   const [title, setTitle] = useState(presetTitle)
   const [date, setDate] = useState(initialDT.date)
   const [time, setTime] = useState(initialDT.time)
+  const [timezone, setTimezone] = useState(initialTz)
   const [duration, setDuration] = useState(60)
   const [note, setNote] = useState('')
   const [participants, setParticipants] = useState(presetParticipants) // [{id, display_name, sector, avatar_url}]
@@ -57,6 +116,7 @@ function ScheduleMeetingModal({
     const dt = defaultDateTime()
     setDate(dt.date)
     setTime(dt.time)
+    setTimezone(detectTimezone())
     setDuration(60)
     setNote('')
     setSearchQ('')
@@ -100,7 +160,7 @@ function ScheduleMeetingModal({
     if (!title.trim()) { setError('Give the meeting a title.'); return }
     if (!date || !time) { setError('Pick a date and time.'); return }
     setBusy(true)
-    const scheduledAt = new Date(`${date}T${time}:00`).toISOString()
+    const scheduledAt = buildScheduledAtISO(date, time, timezone)
 
     const { data: meeting, error: mErr } = await supabase
       .from('meetings')
@@ -108,6 +168,7 @@ function ScheduleMeetingModal({
         title: title.trim(),
         scheduled_at: scheduledAt,
         duration_minutes: duration,
+        timezone,
         note: note.trim() || null,
         created_by: user.id,
         room_id: presetRoomId,
@@ -169,6 +230,18 @@ function ScheduleMeetingModal({
               <label>Time</label>
               <input type="time" value={time} onChange={e => setTime(e.target.value)} disabled={busy} />
             </div>
+          </div>
+
+          <div className="smm-field">
+            <label>Time zone</label>
+            <select value={timezone} onChange={e => setTimezone(e.target.value)} disabled={busy}>
+              {COMMON_TIMEZONES.find(t => t.value === timezone) ? null : (
+                <option value={timezone}>{timezone} (detected)</option>
+              )}
+              {COMMON_TIMEZONES.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
           </div>
 
           <div className="smm-field">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import { makeInitials, sectorTheme, sectorLabel, timeAgo, SECTORS } from './format'
+import SectorPicker from './SectorPicker'
 import './Profile.css'
 
 const JOB_TYPE_LABEL = { 'full-time': 'Full-time', 'part-time': 'Part-time', 'contract': 'Contract', 'internship': 'Internship' }
@@ -27,7 +28,8 @@ function Profile({ user }) {
   const [rooms, setRooms] = useState([])
   const [jobs, setJobs] = useState([])
   const [connections, setConnections] = useState([])
-  const [editData, setEditData] = useState({ display_name: '', headline: '', location: '', bio: '', sector: '', verification_url: '' })
+  const [editData, setEditData] = useState({ display_name: '', headline: '', location: '', bio: '', sector: '', sector_other: '', verification_url: '' })
+  const [savedToast, setSavedToast] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -54,6 +56,7 @@ function Profile({ user }) {
         location: profile.location || '',
         bio: profile.bio || '',
         sector: profile.sector || (SECTORS[0]?.value || ''),
+        sector_other: profile.feed_preferences?.sector_other || '',
         verification_url: profile.verification_url || '',
       })
 
@@ -133,12 +136,18 @@ function Profile({ user }) {
 
   const saveProfile = async () => {
     if (!isOwnProfile) return
+    const sectorOtherTrim = editData.sector === 'other' ? editData.sector_other.trim() : ''
+    const nextFeedPrefs = {
+      ...(target.feed_preferences || {}),
+      sector_other: sectorOtherTrim || null,
+    }
     const update = {
       display_name: editData.display_name.trim() || target.display_name,
       headline: editData.headline.trim() || null,
       location: editData.location.trim() || null,
       bio: editData.bio.trim() || null,
       sector: editData.sector || null,
+      feed_preferences: nextFeedPrefs,
       updated_at: new Date().toISOString(),
     }
     if (target.account_type === 'company') {
@@ -148,6 +157,8 @@ function Profile({ user }) {
     if (error) { alert(error.message); return }
     setTarget(t => ({ ...t, ...update }))
     setIsEditing(false)
+    setSavedToast(true)
+    setTimeout(() => setSavedToast(false), 2400)
   }
 
   if (notFound) {
@@ -173,6 +184,7 @@ function Profile({ user }) {
   if (isCompany) {
     return (
       <div className="profile-page">
+        {savedToast && <div className="profile-saved-toast">Changes saved</div>}
         <div className="profile-main">
           <div className="profile-cover">
             <div className="profile-cover-gradient" />
@@ -228,17 +240,30 @@ function Profile({ user }) {
                 </div>
                 <div className="profile-sector-badge">
                   {isEditing ? (
-                    <select className="profile-edit-select" value={editData.sector} onChange={e => setEditData({ ...editData, sector: e.target.value })}>
-                      {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                    </select>
+                    <SectorPicker
+                      value={editData.sector}
+                      otherValue={editData.sector_other}
+                      onChange={v => setEditData({ ...editData, sector: v })}
+                      onOtherChange={v => setEditData({ ...editData, sector_other: v })}
+                      className="profile-edit-select"
+                      otherClassName="profile-edit-input sm profile-edit-sector-other"
+                    />
                   ) : sectorTag}
                 </div>
               </div>
               <div className="profile-header-actions">
                 {isOwnProfile ? (
-                  <button className="profile-edit-btn" onClick={() => isEditing ? saveProfile() : setIsEditing(true)}>
-                    {isEditing ? 'Save' : 'Edit Profile'}
-                  </button>
+                  <>
+                    {isEditing && (
+                      <button className="profile-cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+                    )}
+                    <button
+                      className={`profile-edit-btn ${isEditing ? 'profile-edit-btn-primary' : ''}`}
+                      onClick={() => isEditing ? saveProfile() : setIsEditing(true)}
+                    >
+                      {isEditing ? 'Save Changes' : 'Edit Profile'}
+                    </button>
+                  </>
                 ) : (
                   <>
                     <button className="profile-connect-btn" onClick={toggleFollow}>
@@ -434,6 +459,7 @@ function Profile({ user }) {
   // ============================================================
   return (
     <div className="profile-page">
+      {savedToast && <div className="profile-saved-toast">Changes saved</div>}
       <div className="profile-main">
         <div className="profile-cover">
           <div className="profile-cover-gradient" />
@@ -474,17 +500,27 @@ function Profile({ user }) {
               </div>
               <div className="profile-sector-badge">
                 {isEditing ? (
-                  <select className="profile-edit-select" value={editData.sector} onChange={e => setEditData({ ...editData, sector: e.target.value })}>
-                    {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
+                  <SectorPicker
+                    value={editData.sector}
+                    otherValue={editData.sector_other}
+                    onChange={v => setEditData({ ...editData, sector: v })}
+                    onOtherChange={v => setEditData({ ...editData, sector_other: v })}
+                    className="profile-edit-select"
+                    otherClassName="profile-edit-input sm profile-edit-sector-other"
+                  />
                 ) : sectorTag}
               </div>
             </div>
             <div className="profile-header-actions">
               {isOwnProfile ? (
-                <button className="profile-edit-btn" onClick={() => isEditing ? saveProfile() : setIsEditing(true)}>
-                  {isEditing ? 'Save' : 'Edit Profile'}
-                </button>
+                <>
+                  {isEditing && (
+                    <button className="profile-cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+                  )}
+                  <button className="profile-edit-btn" onClick={() => isEditing ? saveProfile() : setIsEditing(true)}>
+                    {isEditing ? 'Save Changes' : 'Edit Profile'}
+                  </button>
+                </>
               ) : (
                 <>
                   <button className="profile-connect-btn" onClick={toggleFollow}>

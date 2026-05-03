@@ -11,6 +11,7 @@ function adaptProfile(p) {
     id: p.id,
     name: p.display_name,
     initials: makeInitials(p.display_name),
+    isCompany: p.account_type === 'company',
     role: p.headline || (p.account_type === 'company' ? 'Organization' : 'Professional'),
     company: p.account_type === 'company' ? p.display_name : '',
     sector: sectorLabel(p.sector),
@@ -114,7 +115,7 @@ function Network({ user }) {
                 <div className="people-grid">
                   {connections.map(p => (
                     <div key={p.id} className="person-card connected">
-                      <div className="person-avatar" style={{ background: p.bg }}>{p.initials}</div>
+                      <div className={`person-avatar ${p.isCompany ? 'person-avatar-company' : ''}`} style={{ background: p.bg }}>{p.initials}</div>
                       <div className="person-name" onClick={() => openProfile(p)} style={{ cursor: 'pointer' }}>{p.name}</div>
                       <div className="person-role">{p.role}</div>
                       {p.company && <div className="person-company">{p.company}</div>}
@@ -137,7 +138,7 @@ function Network({ user }) {
                 <div className="people-grid">
                   {suggested.map(p => (
                     <div key={p.id} className="person-card">
-                      <div className="person-avatar" style={{ background: p.bg }}>{p.initials}</div>
+                      <div className={`person-avatar ${p.isCompany ? 'person-avatar-company' : ''}`} style={{ background: p.bg }}>{p.initials}</div>
                       <div className="person-name" onClick={() => openProfile(p)} style={{ cursor: 'pointer' }}>{p.name}</div>
                       <div className="person-role">{p.role}</div>
                       {p.company && <div className="person-company">{p.company}</div>}

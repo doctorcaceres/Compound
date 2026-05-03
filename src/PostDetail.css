@@ -57,6 +57,21 @@
 }
 .postdetail-body p:last-child { margin-bottom: 0; }
 
+.postdetail-image-wrap {
+  margin-top: 18px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+  display: flex; justify-content: center;
+}
+.postdetail-image {
+  max-width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  display: block;
+}
+
 .postdetail-sample-note {
   margin-top: 22px;
   padding: 10px 14px;

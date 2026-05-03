@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import { makeInitials, sectorTheme, sectorLabel, timeAgo, SECTORS } from './format'
 import ScheduleMeetingModal from './ScheduleMeetingModal'
+import SectorPicker from './SectorPicker'
 import './ConversationRooms.css'
 
 function sectorBadge(value) {
@@ -31,7 +32,7 @@ function ConversationRooms({ user }) {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const [showCreate, setShowCreate] = useState(!!location.state?.openCreate)
-  const [newRoom, setNewRoom] = useState({ name: '', sector: SECTORS[0].value })
+  const [newRoom, setNewRoom] = useState({ name: '', sector: SECTORS[0].value, sector_other: '', requires_nda: false })
   const [creating, setCreating] = useState(false)
 
   const fetchRooms = useCallback(async () => {
@@ -65,18 +66,21 @@ function ConversationRooms({ user }) {
     const name = newRoom.name.trim()
     if (!name || creating) return
     setCreating(true)
+    const sectorOtherTrim = newRoom.sector === 'other' ? newRoom.sector_other.trim() : ''
     const { data, error } = await supabase
       .from('conversation_rooms')
       .insert({
         name,
         sector: newRoom.sector,
+        sector_other: sectorOtherTrim || null,
+        requires_nda: newRoom.requires_nda,
         created_by: user.id,
       })
       .select()
       .single()
     setCreating(false)
     if (error) { alert(error.message); return }
-    setNewRoom({ name: '', sector: SECTORS[0].value })
+    setNewRoom({ name: '', sector: SECTORS[0].value, sector_other: '', requires_nda: false })
     setShowCreate(false)
     await fetchRooms()
     if (data?.id) navigate(`/rooms/${data.id}`)
@@ -122,11 +126,33 @@ function ConversationRooms({ user }) {
             </div>
             <div className="cr-form-group">
               <label>Sector</label>
-              <select value={newRoom.sector} onChange={e => setNewRoom({ ...newRoom, sector: e.target.value })}>
-                {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
+              <SectorPicker
+                value={newRoom.sector}
+                otherValue={newRoom.sector_other}
+                onChange={v => setNewRoom({ ...newRoom, sector: v })}
+                onOtherChange={v => setNewRoom({ ...newRoom, sector_other: v })}
+                otherClassName="cr-sector-other-input"
+              />
             </div>
           </div>
+          <div className="cr-nda-row">
+            <label className="cr-nda-toggle">
+              <input
+                type="checkbox"
+                checked={newRoom.requires_nda}
+                onChange={e => setNewRoom({ ...newRoom, requires_nda: e.target.checked })}
+              />
+              <span className="cr-nda-track" aria-hidden="true">
+                <span className="cr-nda-knob" />
+              </span>
+              <span className="cr-nda-label">Require NDA</span>
+            </label>
+            <div className="cr-nda-hint">
+              Compound NDA is coming soon. This will require all participants
+              to sign a standardized NDA before accessing room files.
+            </div>
+          </div>
+
           <div className="cr-form-actions">
             <button className="cr-cancel" onClick={() => setShowCreate(false)}>Cancel</button>
             <button className="cr-submit" onClick={handleCreate} disabled={creating || !newRoom.name.trim()}>
@@ -191,6 +217,20 @@ function ConversationRooms({ user }) {
   )
 }
 
+function formatBytes(bytes) {
+  if (bytes == null) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
+}
+
+const ACCEPTED_DOC_TYPES = [
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+  '.txt', '.csv', '.md',
+  '.png', '.jpg', '.jpeg', '.webp', '.gif',
+].join(',')
+
 function RoomDetail({ room, user, onBack }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [participants, setParticipants] = useState([])
@@ -198,6 +238,9 @@ function RoomDetail({ room, user, onBack }) {
   const [messages, setMessages] = useState([])
   const [creator, setCreator] = useState(null)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+  const fileInputRef = useRef(null)
 
   const fetchAll = useCallback(async () => {
     const [partsRes, docsRes, msgsRes] = await Promise.all([
@@ -207,7 +250,7 @@ function RoomDetail({ room, user, onBack }) {
         .eq('room_id', room.id),
       supabase
         .from('room_documents')
-        .select('id, file_name, file_size, created_at')
+        .select('id, file_name, file_size, storage_path, created_at, uploader:profiles!uploaded_by(id, display_name)')
         .eq('room_id', room.id)
         .order('created_at', { ascending: false }),
       supabase
@@ -223,6 +266,52 @@ function RoomDetail({ room, user, onBack }) {
     const { data: c } = await supabase.from('profiles').select('display_name').eq('id', room.created_by).single()
     setCreator(c)
   }, [room.id, room.created_by])
+
+  const handleFileChosen = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploading(true)
+    setUploadError(null)
+    try {
+      // Sanitize filename: strip path separators, keep dots/dashes/underscores.
+      const cleanName = file.name.replace(/[/\\]/g, '_')
+      const path = `${room.id}/${Date.now()}-${cleanName}`
+      const { error: upErr } = await supabase.storage
+        .from('room-documents')
+        .upload(path, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type || undefined,
+        })
+      if (upErr) throw upErr
+      const { error: insErr } = await supabase.from('room_documents').insert({
+        room_id: room.id,
+        uploaded_by: user.id,
+        file_name: file.name,
+        file_size: file.size,
+        storage_path: path,
+      })
+      if (insErr) throw insErr
+      await fetchAll()
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleDownload = async (doc) => {
+    if (!doc.storage_path) return
+    const { data, error } = await supabase.storage
+      .from('room-documents')
+      .createSignedUrl(doc.storage_path, 60)
+    if (error || !data?.signedUrl) {
+      alert('Could not generate a download link.')
+      return
+    }
+    window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+  }
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
@@ -251,9 +340,21 @@ function RoomDetail({ room, user, onBack }) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg>
               Invite
             </button>
-            <button className="room-upload-btn">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_DOC_TYPES}
+              style={{ display: 'none' }}
+              onChange={handleFileChosen}
+            />
+            <button
+              className="room-upload-btn"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              title="Upload a document"
+            >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-              Upload
+              {uploading ? 'Uploading…' : 'Upload'}
             </button>
           </div>
         </div>
@@ -323,13 +424,13 @@ function RoomDetail({ room, user, onBack }) {
                 {documents.length === 0 ? (
                   <div className="room-empty">No documents yet.</div>
                 ) : documents.slice(0, 5).map(d => (
-                  <div key={d.id} className="room-doc">
+                  <button key={d.id} className="room-doc" onClick={() => handleDownload(d)} title="Download">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                     <div>
                       <div className="room-doc-name">{d.file_name}</div>
-                      <div className="room-doc-meta">{d.file_size ? `${Math.round(d.file_size / 1024)} KB` : ''} &middot; {timeAgo(d.created_at)}</div>
+                      <div className="room-doc-meta">{formatBytes(d.file_size)} &middot; {timeAgo(d.created_at)}</div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -342,16 +443,23 @@ function RoomDetail({ room, user, onBack }) {
 
         {activeTab === 'documents' && (
           <div className="room-documents-tab">
+            {uploadError && (
+              <div className="room-doc-error">{uploadError}</div>
+            )}
             {documents.length === 0 ? (
-              <div className="room-empty">No documents uploaded yet.</div>
+              <div className="room-empty">No documents uploaded yet. Click <strong>Upload</strong> to add one.</div>
             ) : documents.map(d => (
               <div key={d.id} className="room-doc-row">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                 <div className="room-doc-row-info">
                   <div className="room-doc-row-name">{d.file_name}</div>
-                  <div className="room-doc-row-meta">{d.file_size ? `${Math.round(d.file_size / 1024)} KB` : ''} &middot; Uploaded {timeAgo(d.created_at)}</div>
+                  <div className="room-doc-row-meta">
+                    {formatBytes(d.file_size)} &middot; Uploaded by {d.uploader?.display_name || 'someone'} &middot; {timeAgo(d.created_at)}
+                  </div>
                 </div>
-                <button className="room-doc-download">Download</button>
+                <button className="room-doc-download" onClick={() => handleDownload(d)} disabled={!d.storage_path}>
+                  Download
+                </button>
               </div>
             ))}
           </div>

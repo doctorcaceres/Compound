@@ -139,13 +139,58 @@
   color: var(--text-muted);
 }
 .onboarding-mic:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
-.onboarding-mic.listening { border-color: var(--red); color: var(--red); }
+.onboarding-mic.listening {
+  border-color: var(--red); color: var(--red);
+  position: relative;
+}
 .onboarding-mic:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Pulsing red dot used by both Onboarding and ChatPanel mic buttons. */
+.mic-pulse {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+  animation: micPulse 1.2s infinite;
+}
+@keyframes micPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.onboarding-speech-error {
+  margin-top: 8px;
+  background: rgba(239,68,68,0.10);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: var(--red);
+  padding: 6px 10px;
+  font-size: 12px; border-radius: 6px;
+  text-align: center;
+}
 .onboarding-send {
   background: var(--green); color: white; border: none;
 }
 .onboarding-send:hover:not(:disabled) { background: var(--green-dim); }
 .onboarding-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.onboarding-confirm-row {
+  margin-top: 10px;
+  display: flex; justify-content: center;
+}
+.onboarding-confirm-btn {
+  height: 42px; padding: 0 22px;
+  background: var(--green); color: white; border: none;
+  border-radius: 999px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 4px 16px rgba(31,155,115,0.35);
+}
+.onboarding-confirm-btn:hover:not(:disabled) { background: var(--green-dim); transform: translateY(-1px); }
+.onboarding-confirm-btn:active { transform: translateY(0); }
+.onboarding-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .onboarding-cta {
   padding: 14px 6px 6px;

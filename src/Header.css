@@ -16,11 +16,15 @@
   display: block; width: 28px; height: 2px;
   background: var(--accent-line); margin: 3px auto 0; border-radius: 1px;
 }
-.nav-links { display: flex; gap: 8px; }
+.nav-links {
+  display: flex; gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
 .nav-links a {
   background: none; border: none; color: var(--text-secondary);
-  font-family: var(--sans); font-size: 13px; font-weight: 500;
-  padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  padding: 8px 18px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
   text-decoration: none;
 }
 .nav-links a:hover { color: var(--text-primary); background: var(--bg-surface); }

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from './supabaseClient'
 import { extractOnboarding } from './aiChat'
+import { useSpeechToText } from './useSpeechToText'
 import './Onboarding.css'
 
-const MAX_USER_TURNS = 2 // first reply + at most one follow-up — then we save
+const MAX_USER_TURNS = 4 // hard cap so we don't loop forever, but typical flow is 2-3
 
 function defaultGreeting(isCompany) {
   if (isCompany) {
@@ -23,11 +24,19 @@ function Onboarding({ user, onComplete }) {
   const [avatarUrl, setAvatarUrl] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [userTurns, setUserTurns] = useState(0)
-  const [listening, setListening] = useState(false)
   const [savedUpdate, setSavedUpdate] = useState(null)
+  const [awaitingConfirm, setAwaitingConfirm] = useState(false)
+  const [interim, setInterim] = useState('')
   const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
-  const recognitionRef = useRef(null)
+
+  const { supported: speechSupported, listening, error: speechError, toggle: toggleMic } = useSpeechToText({
+    onFinal: (text) => {
+      setInput(prev => (prev ? prev.replace(/\s+$/, '') + ' ' : '') + text.trim())
+      setInterim('')
+    },
+    onInterim: (text) => setInterim(text),
+  })
 
   // Mount: post the single comprehensive greeting
   useEffect(() => {
@@ -38,32 +47,6 @@ function Onboarding({ user, onComplete }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, busy])
-
-  // Speech recognition
-  const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
-  const speechSupported = !!SR
-
-  const toggleMic = () => {
-    if (!speechSupported || busy) return
-    if (listening) {
-      recognitionRef.current?.stop()
-      setListening(false)
-      return
-    }
-    const rec = new SR()
-    rec.lang = 'en-US'
-    rec.interimResults = false
-    rec.maxAlternatives = 1
-    rec.onresult = (e) => {
-      const text = e.results[0][0].transcript
-      setInput(prev => (prev ? prev + ' ' : '') + text)
-    }
-    rec.onend = () => setListening(false)
-    rec.onerror = () => setListening(false)
-    recognitionRef.current = rec
-    rec.start()
-    setListening(true)
-  }
 
   const submitMessage = async () => {
     if (busy || done) return
@@ -98,10 +81,19 @@ function Onboarding({ user, onComplete }) {
       setUserTurns(newTurnCount)
 
       const stillMissing = (result.missing_critical || []).filter(Boolean)
-      const shouldFinish = !allowFollowUp || stillMissing.length === 0
+      const criticalSatisfied = stillMissing.length === 0
 
-      if (shouldFinish) {
-        await finalize(next)
+      if (criticalSatisfied) {
+        // Critical fields collected — enter review mode. The AI's reply is a
+        // recap + "anything else?" offer. Wait for user confirmation or more
+        // input. If we've burned our turn budget, finalize anyway as safety.
+        if (newTurnCount >= MAX_USER_TURNS) {
+          await finalize(next)
+        } else {
+          setAwaitingConfirm(true)
+        }
+      } else {
+        setAwaitingConfirm(false)
       }
     } catch (err) {
       setMessages(m => [...m, {
@@ -109,6 +101,16 @@ function Onboarding({ user, onComplete }) {
         content: `Hit a snag with the AI (${err.message}). Saving what I have so far.`,
       }])
       // On API failure, still try to save with whatever we have
+      await finalize(collected)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const confirmAndSave = async () => {
+    if (busy || done) return
+    setBusy(true)
+    try {
       await finalize(collected)
     } finally {
       setBusy(false)
@@ -143,9 +145,11 @@ function Onboarding({ user, onComplete }) {
       display_name: (data.display_name && String(data.display_name).trim()) || user.name,
       headline: (data.headline && String(data.headline).trim()) || null,
       sector: data.sector || null,
+      location: (data.location && String(data.location).trim()) || null,
       avatar_url: avatarUrl,
       feed_preferences: {
         looking_for: data.looking_for || null,
+        sector_other: (data.sector === 'other' && data.sector_other) ? data.sector_other : null,
       },
       onboarded: true,
       updated_at: new Date().toISOString(),
@@ -236,7 +240,7 @@ function Onboarding({ user, onComplete }) {
                 <input
                   type="text"
                   placeholder={userTurns === 0 ? 'Tell me about yourself…' : 'Type your reply…'}
-                  value={input}
+                  value={interim ? (input ? `${input} ${interim}` : interim) : input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={onInputKey}
                   disabled={busy}
@@ -250,6 +254,7 @@ function Onboarding({ user, onComplete }) {
                     aria-label="Voice input"
                     disabled={busy}
                   >
+                    {listening && <span className="mic-pulse" aria-hidden="true" />}
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
                       <path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" />
@@ -268,6 +273,22 @@ function Onboarding({ user, onComplete }) {
                   </svg>
                 </button>
               </div>
+
+              {speechError && (
+                <div className="onboarding-speech-error">{speechError}</div>
+              )}
+
+              {awaitingConfirm && (
+                <div className="onboarding-confirm-row">
+                  <button
+                    className="onboarding-confirm-btn"
+                    onClick={confirmAndSave}
+                    disabled={busy}
+                  >
+                    Looks good — save my profile
+                  </button>
+                </div>
+              )}
             </>
           )}
 

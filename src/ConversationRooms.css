@@ -56,6 +56,53 @@
 .cr-form-group select:focus { border-color: var(--green); }
 .cr-form-group select { cursor: pointer; }
 .cr-form-group select option { background: var(--bg-card); }
+.cr-nda-row {
+  margin: 14px 0 6px;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.cr-nda-toggle {
+  display: inline-flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.cr-nda-toggle input { display: none; }
+.cr-nda-track {
+  position: relative;
+  width: 36px; height: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.cr-nda-knob {
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 16px; height: 16px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: transform 0.18s, background 0.15s;
+}
+.cr-nda-toggle input:checked + .cr-nda-track {
+  background: var(--green-glow);
+  border-color: var(--green);
+}
+.cr-nda-toggle input:checked + .cr-nda-track .cr-nda-knob {
+  background: var(--green);
+  transform: translateX(16px);
+}
+.cr-nda-label {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+}
+.cr-nda-hint {
+  margin-top: 8px;
+  font-size: 11px; color: var(--text-muted);
+  line-height: 1.5;
+}
 .cr-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .cr-cancel {
   height: 36px; padding: 0 16px;
@@ -311,11 +358,28 @@
 /* Documents */
 .room-doc {
   display: flex; align-items: center; gap: 10px;
-  padding: 10px 0; border-bottom: 1px solid var(--border);
+  width: 100%;
+  padding: 10px 0;
+  border: none; background: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.room-doc:hover { background: var(--bg-surface); }
 .room-doc:last-child { border-bottom: none; }
-.room-doc-name { font-size: 13px; font-weight: 500; }
+.room-doc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .room-doc-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.room-doc-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: var(--red);
+  padding: 8px 12px; margin-bottom: 12px;
+  border-radius: 6px; font-size: 12px;
+}
+.room-doc-download:disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
 
 /* Document Tab */
 .room-documents-tab {

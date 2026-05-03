@@ -241,18 +241,31 @@ Return ONLY valid JSON in this exact shape, no prose before or after, no markdow
     "display_name": string | null,
     "headline": string | null,
     "sector": string | null,
+    "sector_other": string | null,
+    "location": string | null,
     "looking_for": string | null
   },
   "missing_critical": string[],
   "reply": string
 }
 
-Rules:
-- For "extracted.sector", use one of the lowercase tokens listed above, or null if the user hasn't given enough to pick one confidently.
-- ${accountType === 'company' ? 'Critical fields for a company: display_name, sector. Headline and looking_for are nice-to-have, never required.' : 'Critical fields for an individual: display_name, sector. Headline and looking_for are nice-to-have, never required.'}
+Rules for "extracted.sector" (BE LITERAL, NOT INTERPRETIVE):
+- Map the user's exact words to the closest token in the list above by matching the LABEL, not by reasoning about the industry.
+- If the user says "Energy" → "energy". "Healthcare" → "healthcare". "Tech" or "Technology" → "tech". "Real Estate" → "realestate". Always prefer the literal label match.
+- Do NOT reinterpret: "Energy" must NEVER become "climate". "Manufacturing" must NEVER become "construction". Match the user's word, period.
+- Only if the user's word genuinely has no match in the list, use "other" and put their custom term in "sector_other".
+- If they haven't said anything sector-related yet, set sector to null (not "other").
+
+Rules for "extracted.location":
+- If the user says "in Paraguay", "based in NYC", "from Berlin", "we're in Singapore", etc., put that location in the location field. NEVER put a location in headline or any other field.
+- Strip filler: "I'm based in Paraguay" → "Paraguay". "We're located in San Francisco" → "San Francisco".
+- If no location given, set to null.
+
+Other rules:
+- ${accountType === 'company' ? 'Critical fields for a company: display_name, sector. Headline, location, and looking_for are nice-to-have, never required.' : 'Critical fields for an individual: display_name, sector. Headline, location, and looking_for are nice-to-have, never required.'}
 - ${followUpRule}
 - "reply" is 1–2 sentences, warm but professional. Reference something specific the user said. No exclamation marks. Never call them "amazing" or "wonderful".
-- If "missing_critical" is empty, "reply" should confirm we're set and that the profile is being saved.`
+- When all critical fields are collected, instead of confirming the save, the "reply" should be a brief recap of what you have so far and ask if they want to add anything else (a website, photo, etc.). Phrase it as an offer, not an interrogation. Set "missing_critical" to [] in this case.`
 }
 
 function parseExtraction(text) {
@@ -309,13 +322,64 @@ export async function extractOnboarding({ userMessage, isCompany, previouslyColl
 
 const SYSTEM_PROMPT = `You are Compound's in-app AI assistant. Compound is a B2B professional networking app — like LinkedIn but cross-sector and cleaner. The user is signed in. You have a small JSON context object describing them (their sector, recent posts, conversation rooms, etc.) — use it to make answers personalized.
 
+You have THREE places to look for information; choose appropriately:
+
+1. The Compound context block (search hits + the user's profile/rooms/posts) — use this for any question about people, companies, rooms, jobs, or posts on the platform. If the user types a name like "Yara" the context block already has the matching rows; refer to them by name. Don't invent platform entities that aren't in the context.
+
+2. The web (via your web_search tool) — use this for current events, news, market trends, recent funding, regulations, "latest X", anything that requires fresh information. Always call web_search when the user asks about news, current trends, recent developments, or anything dated. Cite sources naturally in your reply.
+
+3. Your own training knowledge — use this for general explanations, definitions, drafting, and timeless information.
+
 Rules:
-- Keep answers concise (2–3 sentences max) unless the user explicitly asks for more depth.
-- If you don't know something the context doesn't cover, say so plainly. Don't invent companies or people.
-- Don't recommend external links. Stay in the Compound world.
+- Keep answers concise (2–3 sentences) unless the user asks for depth.
+- For platform lookups: if the search context has matches, list them briefly and let the UI render the clickable result rows above your message. You don't need to repeat names line-by-line.
+- For web answers: pull the actual fresh info — don't say "I can't browse the web." You can. Use web_search.
+- If you genuinely don't know, say so plainly. Don't invent companies, funding rounds, or people.
 - When asked to draft a message, return just the message body — no preamble.`
 
-export async function callClaude({ user, message, context, conversation }) {
+// Anthropic's server-side web search tool. We pass it as an available tool;
+// Claude decides when to call it. Server tools are executed by Anthropic
+// during the same API call, so the response we get back already contains
+// the synthesized answer with citations.
+const WEB_SEARCH_TOOL = {
+  type: 'web_search_20250305',
+  name: 'web_search',
+  max_uses: 5,
+}
+
+// Pull the readable text out of a possibly-multi-block content array. The
+// response may interleave `text`, `server_tool_use`, and `web_search_tool_result`
+// blocks; we only render the text. Citations on text blocks are appended in
+// parentheses if present so users can see sources.
+function extractText(content) {
+  if (!Array.isArray(content)) return ''
+  const parts = []
+  for (const block of content) {
+    if (block?.type === 'text' && typeof block.text === 'string') {
+      parts.push(block.text)
+    }
+  }
+  return parts.join('\n').trim()
+}
+
+function extractCitations(content) {
+  if (!Array.isArray(content)) return []
+  const cites = []
+  for (const block of content) {
+    if (block?.type === 'text' && Array.isArray(block.citations)) {
+      for (const c of block.citations) {
+        if (c?.url && c?.title) {
+          cites.push({ url: c.url, title: c.title })
+        }
+      }
+    }
+  }
+  // Dedupe by URL
+  const seen = new Set()
+  return cites.filter(c => seen.has(c.url) ? false : (seen.add(c.url), true))
+}
+
+export async function callClaude({ user, message, context, conversation, enableWebSearch = true }) {
   if (!ANTHROPIC_KEY) {
     throw new Error('Missing VITE_ANTHROPIC_API_KEY')
   }
@@ -330,6 +394,16 @@ export async function callClaude({ user, message, context, conversation }) {
   }
   messages.push({ role: 'user', content: message + ctxBlock })
 
+  const body = {
+    model: MODEL,
+    max_tokens: 800,
+    system: SYSTEM_PROMPT,
+    messages,
+  }
+  if (enableWebSearch) {
+    body.tools = [WEB_SEARCH_TOOL]
+  }
+
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -338,18 +412,14 @@ export async function callClaude({ user, message, context, conversation }) {
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
     },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 600,
-      system: SYSTEM_PROMPT,
-      messages,
-    }),
+    body: JSON.stringify(body),
   })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
     const msg = data?.error?.message || `API error (${res.status})`
     throw new Error(msg)
   }
-  const text = data?.content?.[0]?.text || ''
-  return { text, usage: data?.usage }
+  const text = extractText(data?.content) || data?.content?.[0]?.text || ''
+  const citations = extractCitations(data?.content)
+  return { text, citations, usage: data?.usage }
 }

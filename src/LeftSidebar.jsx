@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import { sectorTheme, sectorLabel } from './format'
-import { OPEN_FEEDBACK_EVENT } from './Feedback'
 import './LeftSidebar.css'
 
 function shortMeetingTime(iso) {
@@ -65,7 +64,6 @@ function LeftSidebar({ user }) {
   }, [user.id, isCompany])
 
   const sectorRoleLabel = user.sector ? sectorLabel(user.sector) : 'Professional'
-  const openFeedback = () => window.dispatchEvent(new CustomEvent(OPEN_FEEDBACK_EVENT))
 
   return (
     <aside className="sidebar-left">
@@ -134,12 +132,6 @@ function LeftSidebar({ user }) {
         </div>
       )}
 
-      <button className="ls-feedback-link" onClick={openFeedback}>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        Send us feedback
-      </button>
     </aside>
   )
 }

@@ -21,6 +21,7 @@ function Auth() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [sector, setSector] = useState('')
+  const [sectorOther, setSectorOther] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [info, setInfo] = useState(null)
@@ -34,10 +35,11 @@ function Auth() {
     if (password.length < 8) { alert('Password must be at least 8 characters.'); return }
 
     setBusy(true)
+    const sectorOtherTrim = sector === 'other' ? sectorOther.trim() : ''
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name, sector, accountType } },
+      options: { data: { name, sector, sector_other: sectorOtherTrim || null, accountType } },
     })
     setBusy(false)
 
@@ -79,7 +81,12 @@ function Auth() {
                 className={`type-option ${accountType === 'company' ? 'selected' : ''}`}
                 onClick={() => setAccountType('company')}
               >
-                <div className="type-icon">&#9670;</div>
+                <div className="type-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 21V8l9-5 9 5v13" />
+                    <path d="M9 21v-6h6v6" />
+                  </svg>
+                </div>
                 <div className="type-label">Company</div>
                 <div className="type-desc">Organization profile</div>
               </div>
@@ -87,7 +94,12 @@ function Auth() {
                 className={`type-option ${accountType === 'individual' ? 'selected' : ''}`}
                 onClick={() => setAccountType('individual')}
               >
-                <div className="type-icon">&#9679;</div>
+                <div className="type-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
                 <div className="type-label">Individual</div>
                 <div className="type-desc">Professional profile</div>
               </div>
@@ -112,6 +124,16 @@ function Auth() {
                 <option value="">Select your industry</option>
                 {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
+              {sector === 'other' && (
+                <input
+                  className="auth-sector-other"
+                  type="text"
+                  value={sectorOther}
+                  onChange={e => setSectorOther(e.target.value)}
+                  placeholder="Type your industry…"
+                  maxLength={60}
+                />
+              )}
             </div>
             <div className="form-group">
               <label>Password</label>
