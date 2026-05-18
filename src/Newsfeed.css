@@ -1,14 +1,23 @@
 .newsfeed {
+  /* Flex column with a hard cap so the box never overflows its
+     sidebar slot, even when headlines run long. The list child
+     takes the remaining space and scrolls internally. */
+  display: flex;
+  flex-direction: column;
+  max-height: 460px;
+  min-height: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px 14px 10px;
+  overflow: hidden;
 }
 
 .newsfeed-head {
   display: flex; align-items: baseline; justify-content: space-between;
   padding: 0 2px 10px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .newsfeed-title {
   font-family: var(--mono); font-size: 10px; font-weight: 700;
@@ -30,6 +39,9 @@
 .newsfeed-empty {
   padding: 14px 4px;
   font-size: 12px; color: var(--text-muted); line-height: 1.5;
+  /* Don't force the box to fill its max — let it shrink to content
+     so a brief loading message doesn't look like a half-empty card. */
+  flex: 0 0 auto;
 }
 .newsfeed-loading { animation: nfPulse 1.4s ease-in-out infinite; }
 .newsfeed-error { color: var(--red); }
@@ -44,7 +56,19 @@
   list-style: none;
   margin: 0; padding: 6px 0 4px;
   display: flex; flex-direction: column;
+  /* This is the scroll region inside the bounded .newsfeed parent.
+     flex: 1 + min-height: 0 lets it shrink to whatever space is left
+     after the header/footer; overflow-y: auto handles taller content. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
+.newsfeed-list::-webkit-scrollbar { width: 5px; }
+.newsfeed-list::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 3px;
+}
+.newsfeed-list::-webkit-scrollbar-track { background: transparent; }
 .newsfeed-item {
   padding: 9px 2px;
   border-bottom: 1px solid var(--border);
@@ -78,6 +102,7 @@
   margin-top: 8px;
   padding-top: 10px;
   border-top: 1px dashed var(--border);
+  flex-shrink: 0;   /* stay visible even when the list scrolls */
 }
 .newsfeed-link {
   background: none; border: none; padding: 0;
