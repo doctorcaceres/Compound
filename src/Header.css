@@ -40,7 +40,7 @@
 .search-bar:focus-within {
   border-color: var(--green);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(45,212,191,0.12);
+  box-shadow: 0 0 0 3px rgba(74,124,255,0.12);
 }
 .search-bar > svg { flex-shrink: 0; }
 .search-bar input {

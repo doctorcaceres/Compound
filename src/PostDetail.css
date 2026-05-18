@@ -53,7 +53,7 @@
 
 .postdetail-body p {
   font-size: 15px; line-height: 1.7;
-  color: var(--text-secondary); margin-bottom: 14px;
+  color: var(--text-primary); margin-bottom: 14px;
 }
 .postdetail-body p:last-child { margin-bottom: 0; }
 
@@ -79,7 +79,7 @@
   font-size: 11px;
   color: var(--text-muted);
   letter-spacing: 0.5px;
-  background: rgba(45,212,191,0.05);
+  background: rgba(74,124,255,0.05);
   border: 1px dashed var(--border);
   border-radius: 8px;
   text-align: center;

@@ -105,7 +105,7 @@
 .chatbox-title {
   display: flex; align-items: center; gap: 8px;
   font-size: 13px; font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-strong);
 }
 .chatbox-dot {
   width: 8px; height: 8px; border-radius: 50%;
@@ -157,7 +157,7 @@
 .chatbox-msg.user .chatbox-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(45,212,191,0.35);
+  border: 1px solid rgba(74,124,255,0.35);
 }
 .chatbox-msg.assistant .chatbox-bubble {
   background: var(--bg-surface);
@@ -185,7 +185,7 @@
 .chatbox-inline-link {
   color: var(--green);
   text-decoration: underline;
-  text-decoration-color: rgba(45,212,191,0.4);
+  text-decoration-color: rgba(74,124,255,0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
   transition: color 0.15s, text-decoration-color 0.15s;

@@ -59,7 +59,7 @@
 .onboarding-msg.user .onboarding-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(45,212,191,0.4);
+  border: 1px solid rgba(74,124,255,0.4);
 }
 .onboarding-msg.assistant .onboarding-bubble {
   background: var(--bg-surface);
@@ -186,7 +186,7 @@
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s, transform 0.1s;
-  box-shadow: 0 4px 16px rgba(45,212,191,0.35);
+  box-shadow: 0 4px 16px rgba(74,124,255,0.35);
 }
 .onboarding-confirm-btn:hover:not(:disabled) { background: var(--green-dim); transform: translateY(-1px); }
 .onboarding-confirm-btn:active { transform: translateY(0); }

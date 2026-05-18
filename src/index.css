@@ -9,23 +9,26 @@
   --border: #2f343d;
   --border-light: #3a4049;
 
-  /* Text */
-  --text-primary: #E8ECF1;
-  --text-secondary: #8A94A6;
-  --text-muted: #5A6478;
+  /* Text — high contrast on the charcoal background */
+  --text-strong: #ffffff;     /* headers and names */
+  --text-primary: #e2e8f0;    /* body */
+  --text-secondary: #94a3b8;
+  --text-muted: #7a8a9b;
 
-  /* CHORDIS navy */
+  /* CHORDIS navy (sector themes — unchanged) */
   --navy: #1B3A5C;
   --navy-light: #234B74;
   --navy-glow: rgba(27, 58, 92, 0.25);
 
-  /* Accent — deep teal */
-  --green: #2dd4bf;
-  --green-dim: #14b8a6;
-  --green-glow: rgba(45, 212, 191, 0.14);
+  /* Accent — navy blue. (Variable names kept as --green-* to avoid
+     touching the dozens of files that reference them; they're now the
+     navy-blue accent set.) */
+  --green: #4a7cff;
+  --green-dim: #3a6ce8;
+  --green-glow: rgba(74, 124, 255, 0.15);
 
   /* Accent bar */
-  --accent-line: #2dd4bf;
+  --accent-line: #4a7cff;
 
   /* Utility */
   --amber: #F59E0B;
@@ -44,6 +47,11 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Headers — pure white for clear hierarchy on the charcoal background. */
+h1, h2, h3, h4 {
+  color: var(--text-strong);
 }
 
 #root { min-height: 100vh; }

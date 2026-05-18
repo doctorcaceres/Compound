@@ -105,7 +105,7 @@
   padding: 10px 18px;
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
-  box-shadow: 0 8px 24px rgba(45,212,191,0.4);
+  box-shadow: 0 8px 24px rgba(74,124,255,0.4);
   animation: profileToastIn 0.18s ease, profileToastOut 0.3s ease 2.1s forwards;
 }
 @keyframes profileToastIn {
@@ -179,7 +179,7 @@
   font-size: 14px; font-weight: 600; margin-bottom: 12px;
 }
 .profile-bio {
-  font-size: 14px; line-height: 1.7; color: var(--text-secondary);
+  font-size: 14px; line-height: 1.7; color: var(--text-primary);
 }
 
 /* Tabs */

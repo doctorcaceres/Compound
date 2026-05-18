@@ -159,7 +159,7 @@
   font-family: var(--mono);
   letter-spacing: 0.5px;
   border-top: 1px dashed var(--border);
-  background: rgba(45,212,191,0.05);
+  background: rgba(74,124,255,0.05);
   border-radius: 6px;
 }
 

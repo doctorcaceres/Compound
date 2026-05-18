@@ -102,6 +102,7 @@
 .convo-name {
   font-size: 13px;
   font-weight: 600;
+  color: var(--text-strong);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -152,7 +153,7 @@
   font-size: 15px;
   border: 1px solid var(--border);
 }
-.chat-header-name { font-size: 15px; font-weight: 600; }
+.chat-header-name { font-size: 15px; font-weight: 600; color: var(--text-strong); }
 .chat-header-sector {
   font-size: 11px; color: var(--text-muted);
   font-family: var(--mono); letter-spacing: 0.5px;
@@ -335,7 +336,7 @@
   color: var(--green); font-size: 12px;
   cursor: pointer; transition: background 0.15s;
 }
-.chat-room-context:hover { background: rgba(45,212,191,0.22); }
+.chat-room-context:hover { background: rgba(74,124,255,0.22); }
 .chat-room-context strong { color: var(--text-primary); font-weight: 600; margin-left: 2px; }
 
 /* New conversation picker */
