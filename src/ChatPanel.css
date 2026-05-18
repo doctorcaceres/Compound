@@ -195,6 +195,27 @@
   text-decoration-color: var(--green);
 }
 
+/* Superscript citation reference for additional sources on the same text
+   block (e.g. when Claude cites both Reuters and an Anthropic source for
+   the same sentence). Renders as a small [2] chip after the linked block. */
+.chatbox-sup-ref {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 0 4px;
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 1;
+  color: var(--green);
+  background: var(--green-glow);
+  border-radius: 3px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.chatbox-sup-ref:hover {
+  background: var(--green);
+  color: white;
+}
+
 .chatbox-input-row {
   display: flex; gap: 6px;
   padding: 10px 12px;

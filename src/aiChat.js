@@ -380,14 +380,20 @@ function extractCitations(content) {
 
 // Turn the multi-block response into a flat array of segments the UI can
 // render inline. A segment is either:
-//   { text }                          — plain text run
-//   { text, url, title }              — a span the model cited; render as <a>
+//   { text }                                — plain text run
+//   { text, url, title }                    — cited span; render as <a>
+//   { text, url, title, supRef: true }      — superscript "[2]" chip linking
+//                                             to an additional source on the
+//                                             same text block
 //
-// Anthropic's web_search citations are attached to text blocks as
-// { cited_text, url, title, ... }. The `cited_text` is a substring of the
-// block's `text` (or close enough — sometimes whitespace differs), so we
-// locate it by substring search and slice the surrounding text into runs.
-// Block-level separators get rendered as a "\n" plain segment between blocks.
+// Anthropic's web_search splits the response into text blocks, attaching
+// citations to whichever blocks were generated from the sources. The
+// citation's `cited_text` is the excerpt from the SOURCE page, not from
+// the assistant's reply — so substring-matching it against the assistant
+// text mostly fails (Claude paraphrases). The correct mental model is
+// "the whole block is what these citations support." We link the entire
+// block text to the first citation; any additional citations on the same
+// block become superscript references after the block text.
 function extractSegments(content) {
   if (!Array.isArray(content)) return []
   const out = []
@@ -398,47 +404,34 @@ function extractSegments(content) {
     firstBlock = false
 
     const text = block.text
-    const citations = Array.isArray(block.citations) ? block.citations : []
+    const citations = (Array.isArray(block.citations) ? block.citations : [])
+      .filter(c => c?.url)
 
-    // Collect citation spans by locating cited_text inside the block text.
-    // If a citation can't be located, drop it from the inline-link pass —
-    // it'll still appear as a pill at the bottom via extractCitations.
-    const spans = []
-    for (const c of citations) {
-      if (!c?.url || !c?.cited_text) continue
-      const idx = text.indexOf(c.cited_text)
-      if (idx < 0) continue
-      spans.push({
-        start: idx,
-        end: idx + c.cited_text.length,
-        url: c.url,
-        title: c.title || c.url,
-      })
-    }
-    // Sort by start; resolve overlaps by keeping the first claim on each
-    // character range — overlapping citations would otherwise produce nested
-    // <a> tags which is invalid HTML.
-    spans.sort((a, b) => a.start - b.start)
-    const resolved = []
-    let cursor = 0
-    for (const s of spans) {
-      if (s.start < cursor) continue
-      resolved.push(s)
-      cursor = s.end
-    }
-
-    if (resolved.length === 0) {
+    if (citations.length === 0) {
       out.push({ text })
       continue
     }
 
-    let pos = 0
-    for (const s of resolved) {
-      if (s.start > pos) out.push({ text: text.slice(pos, s.start) })
-      out.push({ text: text.slice(s.start, s.end), url: s.url, title: s.title })
-      pos = s.end
+    // Whole block links to the primary citation.
+    const primary = citations[0]
+    out.push({
+      text,
+      url: primary.url,
+      title: primary.title || primary.url,
+    })
+
+    // Append small superscript chips for any additional citations on the
+    // same block so the user can reach those sources directly without
+    // hunting for them in the pill footer.
+    for (let i = 1; i < citations.length; i++) {
+      const c = citations[i]
+      out.push({
+        text: `[${i + 1}]`,
+        url: c.url,
+        title: c.title || c.url,
+        supRef: true,
+      })
     }
-    if (pos < text.length) out.push({ text: text.slice(pos) })
   }
   return out
 }

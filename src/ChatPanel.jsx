@@ -357,7 +357,7 @@ function ChatPanel({ user }) {
                             href={s.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="chatbox-inline-link"
+                            className={s.supRef ? 'chatbox-sup-ref' : 'chatbox-inline-link'}
                             title={s.title || s.url}
                           >{s.text}</a>
                         ) : (
