@@ -42,7 +42,7 @@
 .search-bar:focus-within {
   border-color: var(--green);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(39,224,163,0.12);
+  box-shadow: 0 0 0 3px rgba(167, 101, 42,0.12);
 }
 .search-bar > svg { flex-shrink: 0; }
 .search-bar input {
@@ -63,7 +63,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+  box-shadow: 0 12px 36px rgba(21, 26, 31, 0.15);
   max-height: 70vh; overflow-y: auto;
   z-index: 220;
   padding: 6px 0;
@@ -116,7 +116,7 @@
 .search-row-verified {
   display: inline-flex; align-items: center; justify-content: center;
   width: 14px; height: 14px; border-radius: 50%;
-  background: var(--green); color: var(--accent-fg);
+  background: var(--brand-ink); color: var(--accent-fg);
 }
 .search-row-subtitle {
   font-size: 11px; color: var(--text-muted); margin-top: 1px;
@@ -167,7 +167,7 @@
   display: none;
   position: fixed;
   inset: 56px 0 0 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(21, 26, 31, 0.35);
   z-index: 220;
 }
 .mobile-menu.open { display: block; animation: fadeIn 0.15s ease; }
@@ -263,7 +263,7 @@
   border-radius: 10px;
   padding: 12px;
   z-index: 200;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(21, 26, 31, 0.15);
   animation: fadeIn 0.15s ease;
 }
 .account-switcher-current-label,

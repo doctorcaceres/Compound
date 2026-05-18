@@ -173,7 +173,7 @@
   cursor: pointer; transition: all 0.15s;
 }
 .btn-connect:hover {
-  background: var(--green);
+  background: var(--brand-ink);
   color: white;
 }
 .btn-connected {

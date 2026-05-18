@@ -2,21 +2,25 @@
   position: fixed; right: 20px; bottom: 20px; z-index: 200;
   display: flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 14px;
-  border: 1px solid var(--green); border-radius: 999px;
-  background: var(--bg-card); color: var(--green);
+  border: 1px solid var(--brand-copper); border-radius: 999px;
+  background: var(--bg-card); color: var(--brand-copper);
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--card-shadow);
 }
-.feedback-fab:hover { background: var(--green-glow); }
+.feedback-fab:hover {
+  background: var(--brand-copper-soft);
+  box-shadow: var(--card-shadow-hover);
+}
 .feedback-fab svg { stroke: currentColor; }
 
 .feedback-panel {
   position: fixed; right: 20px; bottom: 20px; z-index: 200;
   width: 320px; max-width: calc(100vw - 40px);
-  background: var(--bg-card); border: 1px solid var(--green);
-  border-radius: 12px; padding: 14px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px; padding: 14px;
+  box-shadow: 0 12px 36px rgba(21, 26, 31, 0.12);
   animation: fadeIn 0.2s ease;
 }
 .feedback-header {
@@ -34,22 +38,22 @@
 .feedback-close:hover { color: var(--text-primary); }
 .feedback-panel textarea {
   width: 100%; min-height: 90px; padding: 10px;
-  background: var(--bg-surface); border: 1px solid var(--border);
+  background: var(--bg-input); border: 1px solid var(--border-soft);
   border-radius: 8px; color: var(--text-primary);
   font-family: var(--sans); font-size: 13px; line-height: 1.4;
   resize: vertical; outline: none; transition: border-color 0.2s;
 }
-.feedback-panel textarea:focus { border-color: var(--green); }
+.feedback-panel textarea:focus { border-color: var(--brand-copper); }
 .feedback-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
 .feedback-submit {
   height: 32px; padding: 0 14px; border: none; border-radius: 6px;
-  background: var(--green); color: var(--accent-fg);
+  background: var(--brand-ink); color: #fff;
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.feedback-submit:hover:not(:disabled) { background: var(--green-dim); }
+.feedback-submit:hover:not(:disabled) { background: var(--brand-ink-hover); }
 .feedback-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .feedback-thanks {
   padding: 18px 8px; text-align: center;
-  color: var(--green); font-size: 13px; font-weight: 500;
+  color: var(--brand-copper); font-size: 13px; font-weight: 500;
 }

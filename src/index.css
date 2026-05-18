@@ -1,63 +1,93 @@
 :root {
   /* ============================================================
-     Graphite + Compound Mint — single source of truth
+     Ivory / Ink / Copper — editorial light theme
+     Single source of truth for the entire app.
      ============================================================ */
 
   /* Backgrounds */
-  --bg-page:        #070A0D;
-  --bg-shell:       #0B1015;
-  --bg-panel:       #111820;
-  --bg-card:        #151D26;
-  --bg-card-hover:  #1A2430;
-  --bg-input:       #0E141B;
+  --bg-page:       #F4F1E8;   /* warm ivory canvas */
+  --bg-shell:      #FBF8F2;   /* header/sidebar shelf */
+  --bg-card:       #FFFFFF;   /* posts, room cards, job cards, profiles */
+  --bg-card-soft:  #F8F5EF;   /* card hover, secondary surface */
+  --bg-input:      #FFFFFF;   /* inputs, textareas, dropdowns */
 
   /* Borders */
-  --border-soft:    #24313D;
-  --border-strong:  #344555;
+  --border-soft:    #E2D8CA;
+  --border-medium:  #CFC3B4;
+  --border-strong:  #AFA293;
 
   /* Text */
-  --text-primary:   #F3F6F8;
-  --text-secondary: #B7C2CC;
-  --text-muted:     #8D9AA8;
-  --text-disabled:  #667380;
-  --text-strong:    #ffffff;   /* h1-h4 and key names */
+  --text-primary:   #151A1F;  /* body, names, headings */
+  --text-secondary: #3F4A55;  /* metadata, timestamps */
+  --text-muted:     #6C7680;  /* placeholders, captions */
+  --text-subtle:    #8A949E;  /* lowest emphasis still legible */
 
-  /* Compound Mint accent */
-  --accent:         #27E0A3;
-  --accent-hover:   #35F0B4;
-  --accent-pressed: #16B982;
-  --accent-soft:    rgba(39, 224, 163, 0.12);
-  --accent-border:  rgba(39, 224, 163, 0.36);
-  /* Foreground for text/icons that sit on top of an --accent background.
-     Near-black for legibility on the mint fill. */
-  --accent-fg:      #06110D;
+  /* Brand */
+  --brand-ink:          #151A1F;   /* primary action surfaces (button fills) */
+  --brand-ink-hover:    #2A3038;   /* slightly raised ink for button hover */
+  --brand-copper:       #A7652A;   /* accent — links, active, badges, ai dot */
+  --brand-copper-hover: #8F5522;
+  --brand-copper-soft:  #F1E1D0;   /* tinted backgrounds */
+
+  /* Sector chip tokens (per spec) */
+  --sector-chip-bg:     #F1E1D0;
+  --sector-chip-text:   #7A451D;
+  --sector-chip-border: #D9B98F;
+
+  /* Card depth */
+  --card-shadow:       0 1px 2px rgba(21, 26, 31, 0.04);
+  --card-shadow-hover: 0 4px 12px rgba(21, 26, 31, 0.08);
 
   /* Status */
-  --success: #27E0A3;
-  --warning: #F5B84B;
-  --danger:  #EF6461;
-  --info:    #6BB7FF;
+  --success: #2F7D5F;
+  --warning: #C78A2C;
+  --danger:  #B94A48;
+  --info:    #3F6F9F;
 
   /* ============================================================
      Back-compat aliases — existing components reference these
-     names. Mapped onto the new tokens so the rest of the app
-     picks up the new palette without renaming every selector.
+     names. Mapped onto the new tokens so we don't need to
+     rename every selector across 15+ CSS files.
      ============================================================ */
   --bg-deep:        var(--bg-page);
-  --bg-surface:     var(--bg-input);
-  --border:         var(--border-soft);
-  --border-light:   var(--border-strong);
-  --green:          var(--accent);
-  --green-dim:      var(--accent-hover);
-  --green-glow:     var(--accent-soft);
-  --accent-line:    var(--accent);
-  --amber:          var(--warning);
-  --red:            var(--danger);
+  --bg-surface:     var(--bg-card-soft);
+  --bg-card-hover:  var(--bg-card-soft);
+  --bg-panel:       var(--bg-shell);
 
-  /* CHORDIS navy (kept for sector-theme variants) */
-  --navy: #1B3A5C;
-  --navy-light: #234B74;
-  --navy-glow: rgba(27, 58, 92, 0.25);
+  --border:         var(--border-soft);
+  --border-light:   var(--border-medium);
+
+  --text-strong:    var(--text-primary);  /* headings now use dark ink */
+  --text-disabled:  var(--text-subtle);
+
+  /* The old --green/--accent set was the action color. In the light
+     theme that role splits: copper is the BRAND accent (links, active
+     states, badges, the AI dot, the verification tick) while INK is
+     the PRIMARY ACTION surface (button fills). We map --green to copper
+     because the bulk of --green usages are accent-style; the handful of
+     primary-button rules are updated directly to use --brand-ink. */
+  --green:          var(--brand-copper);
+  --green-dim:      var(--brand-copper-hover);
+  --green-glow:     var(--brand-copper-soft);
+  --accent:         var(--brand-copper);
+  --accent-hover:   var(--brand-copper-hover);
+  --accent-pressed: var(--brand-copper-hover);
+  --accent-soft:    var(--brand-copper-soft);
+  --accent-border:  var(--border-medium);
+  --accent-line:    var(--brand-copper);
+  /* Foreground for text/icons on --accent (copper) backgrounds — white.
+     Primary BUTTONS use --brand-ink + plain white text (set directly on
+     each button rule); this token is kept for non-button accent fills. */
+  --accent-fg:      #FFFFFF;
+
+  --amber: var(--warning);
+  --red:   var(--danger);
+
+  /* Navy retained for sector-theme avatar variants (visual distinction
+     for non-tech sectors); not used as an accent. */
+  --navy:       #2D4D6B;
+  --navy-light: #3B5F80;
+  --navy-glow:  rgba(45, 77, 107, 0.10);
 
   /* Fonts */
   --mono: 'Space Mono', monospace;
@@ -68,22 +98,24 @@
 
 body {
   font-family: var(--sans);
-  background: var(--bg-deep);
+  background: var(--bg-page);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Headers — pure white for clear hierarchy on the charcoal background. */
+/* Headings — full ink for editorial weight on the light canvas. */
 h1, h2, h3, h4 {
-  color: var(--text-strong);
+  color: var(--text-primary);
 }
 
 #root { min-height: 100vh; }
 
 ::selection {
-  background: var(--green);
-  color: white;
+  background: var(--brand-copper-soft);
+  color: var(--brand-ink);
 }
 
 input::placeholder, textarea::placeholder {
@@ -93,4 +125,32 @@ input::placeholder, textarea::placeholder {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   Cards — uniform editorial elevation. Subtle shadow at rest,
+   a touch more on hover. Applied centrally so every card class
+   inherits the same depth without per-component duplication.
+   ============================================================ */
+.post,
+.composer,
+.cr-card,
+.job-card,
+.person-card,
+.sch-card,
+.settings-section,
+.auth-card,
+.onboarding-card,
+.chatpanel-card,
+.profile-room-item,
+.profile-header-card,
+.room-detail-header {
+  box-shadow: var(--card-shadow);
+}
+.post:hover,
+.cr-card:hover,
+.job-card:hover,
+.person-card:hover,
+.profile-room-item:hover {
+  box-shadow: var(--card-shadow-hover);
 }

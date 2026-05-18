@@ -47,15 +47,16 @@
 .sidebar-section {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px 14px 8px;
   margin-bottom: 12px;
+  box-shadow: var(--card-shadow);
 }
 .sidebar-section h4 {
-  font-family: var(--mono);
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.2px;
-  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
@@ -149,7 +150,7 @@
 .ls-feedback-link:hover {
   border-color: var(--green);
   color: var(--green);
-  background: rgba(39,224,163,0.05);
+  background: var(--brand-copper-soft);
 }
 
 /* ========================

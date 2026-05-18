@@ -19,9 +19,9 @@
   border-radius: 8px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
-  background: var(--green); border: none; color: var(--accent-fg);
+  background: var(--brand-ink); border: none; color: var(--accent-fg);
 }
-.sch-create-btn:hover { background: var(--green-dim); }
+.sch-create-btn:hover { background: var(--brand-ink-hover); }
 
 /* Empty state */
 .sch-empty,
@@ -125,20 +125,20 @@
   display: flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 16px;
   border-radius: 999px;
-  background: var(--green); color: var(--accent-fg); border: none;
+  background: var(--brand-ink); color: var(--accent-fg); border: none;
   font-family: var(--sans); font-size: 13px; font-weight: 700;
   cursor: pointer; transition: all 0.15s;
-  box-shadow: 0 0 0 0 rgba(39,224,163,0.5);
+  box-shadow: 0 0 0 0 var(--brand-copper-soft);
 }
 .sch-join-btn:hover {
-  background: var(--green-dim);
-  box-shadow: 0 0 0 4px rgba(39,224,163,0.15);
+  background: var(--brand-ink-hover);
+  box-shadow: 0 0 0 4px rgba(167, 101, 42,0.15);
 }
 
 /* Coming Soon modal */
 .sch-cs-overlay {
   position: fixed; inset: 0; z-index: 320;
-  background: rgba(0,0,0,0.6);
+  background: rgba(21, 26, 31, 0.4);
   display: flex; align-items: center; justify-content: center;
 }
 .sch-cs-modal {
@@ -149,7 +149,7 @@
   padding: 28px 26px 22px;
   text-align: center;
   animation: fadeIn 0.18s ease;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 64px rgba(21, 26, 31, 0.15);
 }
 .sch-cs-icon {
   display: flex; align-items: center; justify-content: center;
@@ -161,12 +161,12 @@
 .sch-cs-modal p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 18px; }
 .sch-cs-btn {
   height: 38px; padding: 0 22px;
-  background: var(--green); color: var(--accent-fg); border: none;
+  background: var(--brand-ink); color: var(--accent-fg); border: none;
   border-radius: 8px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s;
 }
-.sch-cs-btn:hover { background: var(--green-dim); }
+.sch-cs-btn:hover { background: var(--brand-ink-hover); }
 
 @media (max-width: 768px) {
   .sch-page { padding: 16px 12px; }

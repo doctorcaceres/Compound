@@ -1,6 +1,6 @@
 .smm-overlay {
   position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.55);
+  background: rgba(21, 26, 31, 0.35);
   display: flex; align-items: flex-start; justify-content: center;
   padding-top: 8vh;
 }
@@ -9,7 +9,7 @@
   background: var(--bg-card);
   border: 1px solid var(--green);
   border-radius: 14px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 64px rgba(21, 26, 31, 0.15);
   display: flex; flex-direction: column;
   animation: fadeIn 0.18s ease;
 }
@@ -133,9 +133,9 @@
 .smm-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
 .smm-submit {
   height: 36px; padding: 0 18px;
-  background: var(--green); border: none; border-radius: 6px;
+  background: var(--brand-ink); border: none; border-radius: 6px;
   color: white; font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
-.smm-submit:hover:not(:disabled) { background: var(--green-dim); }
+.smm-submit:hover:not(:disabled) { background: var(--brand-ink-hover); }
 .smm-submit:disabled { opacity: 0.5; cursor: not-allowed; }

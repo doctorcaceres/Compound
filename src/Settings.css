@@ -73,7 +73,7 @@
 /* Modal */
 .settings-modal-overlay {
   position: fixed; inset: 0; z-index: 250;
-  background: rgba(0,0,0,0.55);
+  background: rgba(21, 26, 31, 0.35);
   display: flex; align-items: flex-start; justify-content: center;
   padding-top: 12vh;
 }
@@ -81,7 +81,7 @@
   width: 420px; max-width: 90vw;
   background: var(--bg-card); border: 1px solid var(--green);
   border-radius: 12px; padding: 22px 24px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 60px rgba(21, 26, 31, 0.15);
   animation: fadeIn 0.18s ease;
 }
 .settings-modal-head {
@@ -131,12 +131,12 @@
 .settings-modal-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
 .settings-modal-submit {
   height: 36px; padding: 0 18px;
-  background: var(--green); border: none;
+  background: var(--brand-ink); border: none;
   border-radius: 6px; color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
   transition: all 0.2s;
 }
-.settings-modal-submit:hover:not(:disabled) { background: var(--green-dim); }
+.settings-modal-submit:hover:not(:disabled) { background: var(--brand-ink-hover); }
 .settings-modal-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
