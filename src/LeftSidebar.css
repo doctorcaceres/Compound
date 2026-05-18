@@ -149,7 +149,7 @@
 .ls-feedback-link:hover {
   border-color: var(--green);
   color: var(--green);
-  background: rgba(31,155,115,0.05);
+  background: rgba(45,212,191,0.05);
 }
 
 /* ========================

@@ -1,13 +1,13 @@
 :root {
-  /* Backgrounds - CLINICAL black */
-  --bg-deep: #0A0D10;
-  --bg-card: #0F1318;
-  --bg-card-hover: #141920;
-  --bg-surface: #161C24;
+  /* Backgrounds — warm charcoal */
+  --bg-deep: #1a1d23;
+  --bg-card: #22262e;
+  --bg-card-hover: #2a2f38;
+  --bg-surface: #1e2228;
 
   /* Borders */
-  --border: #1E2733;
-  --border-light: #263040;
+  --border: #2f343d;
+  --border-light: #3a4049;
 
   /* Text */
   --text-primary: #E8ECF1;
@@ -19,13 +19,13 @@
   --navy-light: #234B74;
   --navy-glow: rgba(27, 58, 92, 0.25);
 
-  /* CLINICAL dark green/teal */
-  --green: #1F9B73;
-  --green-dim: #1A8563;
-  --green-glow: rgba(31, 155, 115, 0.14);
+  /* Accent — deep teal */
+  --green: #2dd4bf;
+  --green-dim: #14b8a6;
+  --green-glow: rgba(45, 212, 191, 0.14);
 
-  /* Accent bar - exactly like CLINICAL */
-  --accent-line: #1F9B73;
+  /* Accent bar */
+  --accent-line: #2dd4bf;
 
   /* Utility */
   --amber: #F59E0B;

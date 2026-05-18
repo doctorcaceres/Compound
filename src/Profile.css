@@ -19,7 +19,7 @@
 }
 .profile-cover-gradient {
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, var(--navy) 0%, #0F1318 50%, var(--green-dim) 100%);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--bg-card) 50%, var(--green-dim) 100%);
   opacity: 0.6;
 }
 
@@ -105,7 +105,7 @@
   padding: 10px 18px;
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
-  box-shadow: 0 8px 24px rgba(31,155,115,0.4);
+  box-shadow: 0 8px 24px rgba(45,212,191,0.4);
   animation: profileToastIn 0.18s ease, profileToastOut 0.3s ease 2.1s forwards;
 }
 @keyframes profileToastIn {

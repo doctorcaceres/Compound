@@ -335,7 +335,7 @@
   color: var(--green); font-size: 12px;
   cursor: pointer; transition: background 0.15s;
 }
-.chat-room-context:hover { background: rgba(31,155,115,0.22); }
+.chat-room-context:hover { background: rgba(45,212,191,0.22); }
 .chat-room-context strong { color: var(--text-primary); font-weight: 600; margin-left: 2px; }
 
 /* New conversation picker */
