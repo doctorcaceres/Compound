@@ -221,7 +221,7 @@ function ChatPanel({ user }) {
           posts: searchResults.posts.map(p => ({ id: p.id, snippet: (p.content || '').slice(0, 120), author: p.author?.display_name })),
         }
       }
-      const { text: reply, citations } = await callClaude({
+      const { text: reply, segments, citations } = await callClaude({
         user,
         message: q,
         context,
@@ -230,7 +230,13 @@ function ChatPanel({ user }) {
       })
       const newCount = incrementDailyCount(user.id)
       setCount(newCount)
-      const next = [...working, { role: 'assistant', content: reply || 'No response.', source: 'claude', citations }]
+      const next = [...working, {
+        role: 'assistant',
+        content: reply || 'No response.',
+        source: 'claude',
+        segments,
+        citations,
+      }]
       setMessages(next)
       await persistConversation(next, activeConvoId)
     } catch (err) {
@@ -344,7 +350,20 @@ function ChatPanel({ user }) {
               return (
                 <div key={i} className={`chatbox-msg ${m.role}`}>
                   <div className={`chatbox-bubble ${m.source === 'local' ? 'local' : ''} ${m.source === 'error' ? 'error' : ''} ${m.source === 'system' ? 'system' : ''}`}>
-                    {m.content}
+                    {Array.isArray(m.segments) && m.segments.length > 0
+                      ? m.segments.map((s, k) => s.url ? (
+                          <a
+                            key={k}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="chatbox-inline-link"
+                            title={s.title || s.url}
+                          >{s.text}</a>
+                        ) : (
+                          <span key={k}>{s.text}</span>
+                        ))
+                      : m.content}
                   </div>
                   {Array.isArray(m.citations) && m.citations.length > 0 && (
                     <div className="chatbox-citations">

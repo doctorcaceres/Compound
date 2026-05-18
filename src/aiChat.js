@@ -349,8 +349,7 @@ const WEB_SEARCH_TOOL = {
 
 // Pull the readable text out of a possibly-multi-block content array. The
 // response may interleave `text`, `server_tool_use`, and `web_search_tool_result`
-// blocks; we only render the text. Citations on text blocks are appended in
-// parentheses if present so users can see sources.
+// blocks; we only render the text.
 function extractText(content) {
   if (!Array.isArray(content)) return ''
   const parts = []
@@ -377,6 +376,71 @@ function extractCitations(content) {
   // Dedupe by URL
   const seen = new Set()
   return cites.filter(c => seen.has(c.url) ? false : (seen.add(c.url), true))
+}
+
+// Turn the multi-block response into a flat array of segments the UI can
+// render inline. A segment is either:
+//   { text }                          — plain text run
+//   { text, url, title }              — a span the model cited; render as <a>
+//
+// Anthropic's web_search citations are attached to text blocks as
+// { cited_text, url, title, ... }. The `cited_text` is a substring of the
+// block's `text` (or close enough — sometimes whitespace differs), so we
+// locate it by substring search and slice the surrounding text into runs.
+// Block-level separators get rendered as a "\n" plain segment between blocks.
+function extractSegments(content) {
+  if (!Array.isArray(content)) return []
+  const out = []
+  let firstBlock = true
+  for (const block of content) {
+    if (block?.type !== 'text' || typeof block.text !== 'string') continue
+    if (!firstBlock) out.push({ text: '\n' })
+    firstBlock = false
+
+    const text = block.text
+    const citations = Array.isArray(block.citations) ? block.citations : []
+
+    // Collect citation spans by locating cited_text inside the block text.
+    // If a citation can't be located, drop it from the inline-link pass —
+    // it'll still appear as a pill at the bottom via extractCitations.
+    const spans = []
+    for (const c of citations) {
+      if (!c?.url || !c?.cited_text) continue
+      const idx = text.indexOf(c.cited_text)
+      if (idx < 0) continue
+      spans.push({
+        start: idx,
+        end: idx + c.cited_text.length,
+        url: c.url,
+        title: c.title || c.url,
+      })
+    }
+    // Sort by start; resolve overlaps by keeping the first claim on each
+    // character range — overlapping citations would otherwise produce nested
+    // <a> tags which is invalid HTML.
+    spans.sort((a, b) => a.start - b.start)
+    const resolved = []
+    let cursor = 0
+    for (const s of spans) {
+      if (s.start < cursor) continue
+      resolved.push(s)
+      cursor = s.end
+    }
+
+    if (resolved.length === 0) {
+      out.push({ text })
+      continue
+    }
+
+    let pos = 0
+    for (const s of resolved) {
+      if (s.start > pos) out.push({ text: text.slice(pos, s.start) })
+      out.push({ text: text.slice(s.start, s.end), url: s.url, title: s.title })
+      pos = s.end
+    }
+    if (pos < text.length) out.push({ text: text.slice(pos) })
+  }
+  return out
 }
 
 export async function callClaude({ user, message, context, conversation, enableWebSearch = true }) {
@@ -421,5 +485,6 @@ export async function callClaude({ user, message, context, conversation, enableW
   }
   const text = extractText(data?.content) || data?.content?.[0]?.text || ''
   const citations = extractCitations(data?.content)
-  return { text, citations, usage: data?.usage }
+  const segments = extractSegments(data?.content)
+  return { text, segments, citations, usage: data?.usage }
 }
