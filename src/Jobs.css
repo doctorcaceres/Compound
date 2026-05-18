@@ -15,11 +15,11 @@
   display: flex; align-items: center; gap: 6px;
   height: 38px; padding: 0 18px;
   border: none; border-radius: 8px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.jobs-create-btn:hover { background: var(--brand-ink-hover); }
+.jobs-create-btn:hover { background: var(--green-dim); }
 
 /* Create form */
 .jobs-create-form {
@@ -71,11 +71,11 @@
 .jobs-submit {
   height: 36px; padding: 0 20px;
   border: none; border-radius: 6px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.jobs-submit:hover:not(:disabled) { background: var(--brand-ink-hover); }
+.jobs-submit:hover:not(:disabled) { background: var(--green-dim); }
 .jobs-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .jobs-submit.big { height: 44px; padding: 0 28px; font-size: 14px; }
 
@@ -159,7 +159,7 @@
   font-family: var(--mono);
   letter-spacing: 0.5px;
   border-top: 1px dashed var(--border);
-  background: var(--brand-copper-soft);
+  background: rgba(31,155,115,0.05);
   border-radius: 6px;
 }
 
@@ -211,13 +211,13 @@
 .job-apply-btn {
   width: 100%; height: 56px;
   border: none; border-radius: 10px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 16px; font-weight: 700;
   letter-spacing: 0.5px;
   cursor: pointer; transition: all 0.2s;
   margin-top: 8px;
 }
-.job-apply-btn:hover:not(:disabled) { background: var(--brand-ink-hover); }
+.job-apply-btn:hover:not(:disabled) { background: var(--green-dim); }
 .job-apply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .job-apply-form {

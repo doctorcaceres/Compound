@@ -125,7 +125,6 @@
 .person-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-strong);
   margin-bottom: 4px;
 }
 .person-name:hover { color: var(--green); }
@@ -173,7 +172,7 @@
   cursor: pointer; transition: all 0.15s;
 }
 .btn-connect:hover {
-  background: var(--brand-ink);
+  background: var(--green);
   color: white;
 }
 .btn-connected {

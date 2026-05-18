@@ -53,17 +53,10 @@ export function sectorLabel(value) {
 // Sectors are grouped into broad color families so we don't need 25 unique
 // hues; closely related industries share a tint.
 // ----------------------------------------------------------------------------
-// All sector chips share the editorial copper-soft look. Avatar backgrounds
-// keep a per-sector hue so users still get visual distinction at a glance.
-const CHIP = {
-  sectorColor: 'var(--sector-chip-bg)',
-  sectorText:  'var(--sector-chip-text)',
-  cardColor:   'var(--sector-chip-text)',
-}
-const THEME_GREEN  = { ...CHIP, bg: '#2F7D5F' }       /* deep editorial green */
-const THEME_NAVY   = { ...CHIP, bg: '#2D4D6B' }       /* deep navy            */
-const THEME_AMBER  = { ...CHIP, bg: '#A7652A' }       /* copper avatar         */
-const THEME_NLIGHT = { ...CHIP, bg: '#3B5F80' }       /* lighter navy          */
+const THEME_GREEN  = { sectorColor: 'var(--green-glow)',     sectorText: 'var(--green)',       bg: 'var(--green-dim)',  cardColor: 'var(--green)' }
+const THEME_NAVY   = { sectorColor: 'var(--navy-glow)',      sectorText: 'var(--accent-line)', bg: 'var(--navy)',       cardColor: 'var(--accent-line)' }
+const THEME_AMBER  = { sectorColor: 'rgba(245,158,11,0.15)', sectorText: 'var(--amber)',       bg: '#2F3D25',           cardColor: 'var(--amber)' }
+const THEME_NLIGHT = { sectorColor: 'var(--navy-glow)',      sectorText: 'var(--accent-line)', bg: 'var(--navy-light)', cardColor: 'var(--accent-line)' }
 
 const SECTOR_THEMES = {
   energy:        THEME_GREEN,
@@ -95,12 +88,7 @@ const SECTOR_THEMES = {
   infrastructure: THEME_AMBER,
 }
 
-const FALLBACK_THEME = {
-  sectorColor: 'var(--sector-chip-bg)',
-  sectorText:  'var(--sector-chip-text)',
-  bg: '#3B5F80',
-  cardColor: 'var(--sector-chip-text)',
-}
+const FALLBACK_THEME = { sectorColor: 'var(--bg-surface)', sectorText: 'var(--text-secondary)', bg: 'var(--navy)', cardColor: 'var(--accent-line)' }
 
 export function sectorTheme(value) {
   if (!value) return FALLBACK_THEME

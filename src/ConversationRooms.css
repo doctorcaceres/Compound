@@ -17,11 +17,11 @@
   display: flex; align-items: center; gap: 6px;
   height: 38px; padding: 0 18px;
   border: none; border-radius: 8px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.cr-create-btn:hover { background: var(--brand-ink-hover); }
+.cr-create-btn:hover { background: var(--green-dim); }
 
 /* Create Form */
 .cr-create-form {
@@ -91,7 +91,7 @@
   border-color: var(--green);
 }
 .cr-nda-toggle input:checked + .cr-nda-track .cr-nda-knob {
-  background: var(--brand-ink);
+  background: var(--green);
   transform: translateX(16px);
 }
 .cr-nda-label {
@@ -115,12 +115,12 @@
 .cr-submit {
   height: 36px; padding: 0 20px;
   border: none; border-radius: 6px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.cr-submit:hover { background: var(--brand-ink-hover); }
-.cr-submit:disabled { opacity: 0.4; cursor: not-allowed; background: var(--brand-ink); }
+.cr-submit:hover { background: var(--green-dim); }
+.cr-submit:disabled { opacity: 0.4; cursor: not-allowed; background: var(--green); }
 
 /* Filters */
 .cr-filters {
@@ -181,15 +181,15 @@
   background: var(--bg-surface); border: 2px solid var(--border);
   z-index: 1; transition: all 0.2s;
 }
-.cr-milestone-dot.done { background: var(--brand-copper); border-color: var(--brand-copper); }
-.cr-milestone-dot.current { border-color: var(--brand-copper); background: var(--brand-copper-soft); }
+.cr-milestone-dot.done { background: var(--green); border-color: var(--green); }
+.cr-milestone-dot.current { border-color: var(--green); background: var(--green-glow); }
 .cr-progress-line {
   position: absolute; left: 5px; right: 5px;
   height: 2px; background: var(--border);
   top: 4px; z-index: 0;
 }
 .cr-progress-fill {
-  height: 100%; background: var(--brand-copper);
+  height: 100%; background: var(--green);
   border-radius: 1px; transition: width 0.3s;
 }
 
@@ -258,11 +258,11 @@
   display: flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 14px;
   border-radius: 6px;
-  border: none; background: var(--brand-ink); color: var(--accent-fg);
+  border: none; background: var(--green); color: white;
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
-.room-video-btn:hover { background: var(--brand-ink-hover); }
+.room-video-btn:hover { background: var(--green-dim); }
 .room-upload-btn {
   border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-secondary);
 }
@@ -317,8 +317,8 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.room-ms.done .room-ms-indicator { background: var(--brand-copper); color: white; }
-.room-ms.current .room-ms-indicator { background: var(--brand-copper-soft); border: 2px solid var(--brand-copper); }
+.room-ms.done .room-ms-indicator { background: var(--green); color: white; }
+.room-ms.current .room-ms-indicator { background: var(--green-glow); border: 2px solid var(--green); }
 .room-ms-circle {
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--bg-surface); border: 2px solid var(--border);
@@ -334,7 +334,7 @@
 .room-activity-item.full { padding: 16px 0; }
 .room-activity-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--brand-copper); flex-shrink: 0; margin-top: 6px;
+  background: var(--green); flex-shrink: 0; margin-top: 6px;
 }
 .room-activity-who { font-weight: 600; color: var(--text-primary); }
 .room-activity-when { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
@@ -484,11 +484,11 @@
 .room-conv-input-row button {
   height: 36px; padding: 0 16px;
   border: none; border-radius: 6px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
-.room-conv-input-row button:hover:not(:disabled) { background: var(--brand-ink-hover); }
+.room-conv-input-row button:hover:not(:disabled) { background: var(--green-dim); }
 .room-conv-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {

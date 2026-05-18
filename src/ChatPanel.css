@@ -10,7 +10,7 @@
   flex-direction: column;
   gap: 12px;
   border-left: 1px solid var(--border);
-  background: var(--bg-shell);
+  background: var(--bg-deep);
 }
 .chatpanel-mobile-toggle,
 .chatpanel-mobile-close {
@@ -105,12 +105,12 @@
 .chatbox-title {
   display: flex; align-items: center; gap: 8px;
   font-size: 13px; font-weight: 600;
-  color: var(--text-strong);
+  color: var(--text-primary);
 }
 .chatbox-dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--brand-copper);
-  box-shadow: 0 0 8px rgba(167, 101, 42, 0.5);
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
 }
 .chatbox-quota {
   font-family: var(--mono); font-size: 10px; font-weight: 700;
@@ -157,7 +157,7 @@
 .chatbox-msg.user .chatbox-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(167, 101, 42,0.35);
+  border: 1px solid rgba(31,155,115,0.35);
 }
 .chatbox-msg.assistant .chatbox-bubble {
   background: var(--bg-surface);
@@ -185,7 +185,7 @@
 .chatbox-inline-link {
   color: var(--green);
   text-decoration: underline;
-  text-decoration-color: rgba(167, 101, 42,0.4);
+  text-decoration-color: rgba(31,155,115,0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
   transition: color 0.15s, text-decoration-color 0.15s;
@@ -212,7 +212,7 @@
   transition: background 0.15s, color 0.15s;
 }
 .chatbox-sup-ref:hover {
-  background: var(--brand-copper);
+  background: var(--green);
   color: white;
 }
 
@@ -233,11 +233,11 @@
 .chatbox-input-row button {
   width: 34px; height: 34px;
   border: none; border-radius: 8px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.15s;
 }
-.chatbox-input-row button:hover:not(:disabled) { background: var(--brand-ink-hover); }
+.chatbox-input-row button:hover:not(:disabled) { background: var(--green-dim); }
 .chatbox-input-row button:disabled { opacity: 0.4; cursor: not-allowed; }
 .chatbox-mic {
   background: var(--bg-surface) !important;
@@ -338,7 +338,7 @@
 .chatbox-results-verified {
   display: inline-flex; align-items: center; justify-content: center;
   width: 12px; height: 12px; border-radius: 50%;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   flex-shrink: 0;
 }
 .chatbox-results-sub {
@@ -385,11 +385,11 @@
 .chatpanel-cta button {
   height: 34px; padding: 0 14px;
   border: none; border-radius: 7px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.2s; width: 100%;
 }
-.chatpanel-cta button:hover { background: var(--brand-ink-hover); }
+.chatpanel-cta button:hover { background: var(--green-dim); }
 
 /* ========================
    Responsive — narrow screens
@@ -431,12 +431,12 @@
     z-index: 200;
     width: 44px; height: 44px;
     border-radius: 50%;
-    background: var(--brand-ink);
+    background: var(--green);
     color: white; border: none;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(21, 26, 31, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
     transition: background 0.15s, transform 0.15s;
   }
-  .chatpanel-mobile-toggle:hover { background: var(--brand-ink-hover); transform: translateY(-1px); }
+  .chatpanel-mobile-toggle:hover { background: var(--green-dim); transform: translateY(-1px); }
   .chatpanel-mobile-toggle:active { transform: translateY(0); }
 }

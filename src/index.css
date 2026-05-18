@@ -1,93 +1,35 @@
 :root {
-  /* ============================================================
-     Clean white theme — white surfaces, near-black ink, copper accent
-     Single source of truth for the entire app.
-     ============================================================ */
-
-  /* Backgrounds */
-  --bg-page:       #FFFFFF;   /* pure white canvas */
-  --bg-shell:      #FAFAFA;   /* subtle off-white for header/sidebar shelf */
-  --bg-card:       #FFFFFF;   /* posts, room cards, job cards, profiles */
-  --bg-card-soft:  #F5F5F5;   /* card hover, secondary surface */
-  --bg-input:      #FFFFFF;   /* inputs, textareas, dropdowns */
+  /* Backgrounds - CLINICAL black */
+  --bg-deep: #0A0D10;
+  --bg-card: #0F1318;
+  --bg-card-hover: #141920;
+  --bg-surface: #161C24;
 
   /* Borders */
-  --border-soft:    #E5E7EB;
-  --border-medium:  #D1D5DB;
-  --border-strong:  #9CA3AF;
+  --border: #1E2733;
+  --border-light: #263040;
 
-  /* Text — near-black for body, neutral grey scale below */
-  --text-primary:   #171717;  /* body, names, headings */
-  --text-secondary: #404040;  /* metadata, timestamps */
-  --text-muted:     #737373;  /* placeholders, captions */
-  --text-subtle:    #A3A3A3;  /* lowest emphasis still legible */
+  /* Text */
+  --text-primary: #E8ECF1;
+  --text-secondary: #8A94A6;
+  --text-muted: #5A6478;
 
-  /* Brand */
-  --brand-ink:          #171717;   /* primary action surfaces (button fills) */
-  --brand-ink-hover:    #2C2C2C;   /* slightly lifted ink on hover */
-  --brand-copper:       #B45309;   /* accent — links, active, badges, ai dot */
-  --brand-copper-hover: #92400E;
-  --brand-copper-soft:  #FEF3C7;   /* tinted backgrounds */
+  /* CHORDIS navy */
+  --navy: #1B3A5C;
+  --navy-light: #234B74;
+  --navy-glow: rgba(27, 58, 92, 0.25);
 
-  /* Sector chip tokens */
-  --sector-chip-bg:     #FEF3C7;
-  --sector-chip-text:   #92400E;
-  --sector-chip-border: #FCD34D;
+  /* CLINICAL dark green/teal */
+  --green: #1F9B73;
+  --green-dim: #1A8563;
+  --green-glow: rgba(31, 155, 115, 0.14);
 
-  /* Card depth (retained as tokens — used only by feedback button) */
-  --card-shadow:       0 1px 2px rgba(23, 23, 23, 0.04);
-  --card-shadow-hover: 0 4px 12px rgba(23, 23, 23, 0.08);
+  /* Accent bar - exactly like CLINICAL */
+  --accent-line: #1F9B73;
 
-  /* Status */
-  --success: #15803D;
-  --warning: #B45309;
-  --danger:  #B91C1C;
-  --info:    #1D4ED8;
-
-  /* ============================================================
-     Back-compat aliases — existing components reference these
-     names. Mapped onto the new tokens so we don't need to
-     rename every selector across 15+ CSS files.
-     ============================================================ */
-  --bg-deep:        var(--bg-page);
-  --bg-surface:     var(--bg-input);   /* legacy name for input bg → white */
-  --bg-card-hover:  var(--bg-card-soft);
-  --bg-panel:       var(--bg-shell);
-
-  --border:         var(--border-soft);
-  --border-light:   var(--border-medium);
-
-  --text-strong:    var(--text-primary);  /* headings now use dark ink */
-  --text-disabled:  var(--text-subtle);
-
-  /* The old --green/--accent set was the action color. In the light
-     theme that role splits: copper is the BRAND accent (links, active
-     states, badges, the AI dot, the verification tick) while INK is
-     the PRIMARY ACTION surface (button fills). We map --green to copper
-     because the bulk of --green usages are accent-style; the handful of
-     primary-button rules are updated directly to use --brand-ink. */
-  --green:          var(--brand-copper);
-  --green-dim:      var(--brand-copper-hover);
-  --green-glow:     var(--brand-copper-soft);
-  --accent:         var(--brand-copper);
-  --accent-hover:   var(--brand-copper-hover);
-  --accent-pressed: var(--brand-copper-hover);
-  --accent-soft:    var(--brand-copper-soft);
-  --accent-border:  var(--border-medium);
-  --accent-line:    var(--brand-copper);
-  /* Foreground for text/icons on --accent (copper) backgrounds — white.
-     Primary BUTTONS use --brand-ink + plain white text (set directly on
-     each button rule); this token is kept for non-button accent fills. */
-  --accent-fg:      #FFFFFF;
-
-  --amber: var(--warning);
-  --red:   var(--danger);
-
-  /* Navy retained for sector-theme avatar variants (visual distinction
-     for non-tech sectors); not used as an accent. */
-  --navy:       #2D4D6B;
-  --navy-light: #3B5F80;
-  --navy-glow:  rgba(45, 77, 107, 0.10);
+  /* Utility */
+  --amber: #F59E0B;
+  --red: #EF4444;
 
   /* Fonts */
   --mono: 'Space Mono', monospace;
@@ -98,24 +40,17 @@
 
 body {
   font-family: var(--sans);
-  background: var(--bg-page);
+  background: var(--bg-deep);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Headings — full ink for editorial weight on the light canvas. */
-h1, h2, h3, h4 {
-  color: var(--text-primary);
 }
 
 #root { min-height: 100vh; }
 
 ::selection {
-  background: var(--brand-copper-soft);
-  color: var(--brand-ink);
+  background: var(--green);
+  color: white;
 }
 
 input::placeholder, textarea::placeholder {

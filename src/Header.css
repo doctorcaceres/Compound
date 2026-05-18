@@ -2,21 +2,19 @@
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 32px; height: 56px;
-  background: rgba(11, 16, 21, 0.92); /* --bg-shell with translucency for backdrop-filter */
+  background: rgba(10, 13, 16, 0.88);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
 .logo {
   font-family: var(--mono); font-size: 18px; font-weight: 700;
-  letter-spacing: 3px; text-transform: uppercase; color: var(--text-strong);
+  letter-spacing: 3px; text-transform: uppercase; color: var(--text-primary);
   text-decoration: none;
 }
-/* One mint accent on the logo — the leading "C". Everything else stays white
-   so the wordmark feels confident and singular, not multicolored. */
-.logo .logo-c { color: var(--accent); }
+.logo .logo-c { color: var(--green); }
 .logo-bar {
   display: block; width: 28px; height: 2px;
-  background: var(--border-strong); margin: 3px auto 0; border-radius: 1px;
+  background: var(--accent-line); margin: 3px auto 0; border-radius: 1px;
 }
 .nav-links {
   display: flex; gap: 4px;
@@ -42,7 +40,7 @@
 .search-bar:focus-within {
   border-color: var(--green);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(167, 101, 42,0.12);
+  box-shadow: 0 0 0 3px rgba(31,155,115,0.12);
 }
 .search-bar > svg { flex-shrink: 0; }
 .search-bar input {
@@ -63,7 +61,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 36px rgba(21, 26, 31, 0.15);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5);
   max-height: 70vh; overflow-y: auto;
   z-index: 220;
   padding: 6px 0;
@@ -116,7 +114,7 @@
 .search-row-verified {
   display: inline-flex; align-items: center; justify-content: center;
   width: 14px; height: 14px; border-radius: 50%;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
 }
 .search-row-subtitle {
   font-size: 11px; color: var(--text-muted); margin-top: 1px;
@@ -167,7 +165,7 @@
   display: none;
   position: fixed;
   inset: 56px 0 0 0;
-  background: rgba(21, 26, 31, 0.35);
+  background: rgba(0,0,0,0.55);
   z-index: 220;
 }
 .mobile-menu.open { display: block; animation: fadeIn 0.15s ease; }
@@ -263,7 +261,7 @@
   border-radius: 10px;
   padding: 12px;
   z-index: 200;
-  box-shadow: 0 10px 30px rgba(21, 26, 31, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: fadeIn 0.15s ease;
 }
 .account-switcher-current-label,

@@ -86,8 +86,8 @@
   bottom: -1px; right: -1px;
   width: 10px; height: 10px;
   border-radius: 50%;
-  background: var(--success);
-  border: 2px solid var(--bg-card);
+  background: var(--green);
+  border: 2px solid var(--bg-deep);
 }
 .convo-info {
   flex: 1;
@@ -102,7 +102,6 @@
 .convo-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-strong);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -153,7 +152,7 @@
   font-size: 15px;
   border: 1px solid var(--border);
 }
-.chat-header-name { font-size: 15px; font-weight: 600; color: var(--text-strong); }
+.chat-header-name { font-size: 15px; font-weight: 600; }
 .chat-header-sector {
   font-size: 11px; color: var(--text-muted);
   font-family: var(--mono); letter-spacing: 0.5px;
@@ -211,8 +210,8 @@
   line-height: 1.5;
 }
 .chat-msg.sent .chat-bubble {
-  background: var(--brand-ink);
-  color: var(--accent-fg);
+  background: var(--green);
+  color: white;
   border-bottom-right-radius: 4px;
 }
 .chat-msg.received .chat-bubble {
@@ -270,10 +269,10 @@
   color: var(--green);
 }
 .send-btn {
-  background: var(--brand-ink);
-  color: var(--accent-fg);
+  background: var(--green);
+  color: white;
 }
-.send-btn:hover { background: var(--brand-ink-hover); }
+.send-btn:hover { background: var(--green-dim); }
 .send-btn:disabled {
   background: var(--bg-surface);
   color: var(--text-muted);
@@ -312,7 +311,7 @@
   font-size: 13px; line-height: 1.5;
 }
 .convo-unread {
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   font-size: 11px; font-weight: 700;
   min-width: 18px; height: 18px; padding: 0 5px;
   border-radius: 9px;
@@ -336,13 +335,13 @@
   color: var(--green); font-size: 12px;
   cursor: pointer; transition: background 0.15s;
 }
-.chat-room-context:hover { background: rgba(167, 101, 42,0.22); }
+.chat-room-context:hover { background: rgba(31,155,115,0.22); }
 .chat-room-context strong { color: var(--text-primary); font-weight: 600; margin-left: 2px; }
 
 /* New conversation picker */
 .convo-picker-overlay {
   position: fixed; inset: 0; z-index: 250;
-  background: rgba(21, 26, 31, 0.35);
+  background: rgba(0,0,0,0.55);
   display: flex; align-items: flex-start; justify-content: center;
   padding-top: 12vh;
 }
@@ -351,7 +350,7 @@
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 12px; padding: 16px;
   display: flex; flex-direction: column;
-  box-shadow: 0 20px 60px rgba(21, 26, 31, 0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   animation: fadeIn 0.18s ease;
 }
 .convo-picker-header {

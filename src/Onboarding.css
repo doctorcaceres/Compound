@@ -16,10 +16,10 @@
   letter-spacing: 3px; text-transform: uppercase; color: var(--text-primary);
   text-align: center;
 }
-.onboarding-logo .logo-c { color: var(--accent); }
+.onboarding-logo .logo-c { color: var(--green); }
 .onboarding-logo .logo-bar {
   display: block; width: 28px; height: 2px;
-  background: var(--border-strong); margin: 4px auto 0; border-radius: 1px;
+  background: var(--accent-line); margin: 4px auto 0; border-radius: 1px;
 }
 
 .onboarding-main {
@@ -59,7 +59,7 @@
 .onboarding-msg.user .onboarding-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(167, 101, 42,0.4);
+  border: 1px solid rgba(31,155,115,0.4);
 }
 .onboarding-msg.assistant .onboarding-bubble {
   background: var(--bg-surface);
@@ -171,9 +171,9 @@
   text-align: center;
 }
 .onboarding-send {
-  background: var(--brand-ink); color: var(--accent-fg); border: none;
+  background: var(--green); color: white; border: none;
 }
-.onboarding-send:hover:not(:disabled) { background: var(--brand-ink-hover); }
+.onboarding-send:hover:not(:disabled) { background: var(--green-dim); }
 .onboarding-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .onboarding-confirm-row {
@@ -182,13 +182,13 @@
 }
 .onboarding-confirm-btn {
   height: 42px; padding: 0 22px;
-  background: var(--brand-ink); color: var(--accent-fg); border: none;
+  background: var(--green); color: white; border: none;
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s, transform 0.1s;
-  box-shadow: 0 4px 16px rgba(167, 101, 42,0.35);
+  box-shadow: 0 4px 16px rgba(31,155,115,0.35);
 }
-.onboarding-confirm-btn:hover:not(:disabled) { background: var(--brand-ink-hover); transform: translateY(-1px); }
+.onboarding-confirm-btn:hover:not(:disabled) { background: var(--green-dim); transform: translateY(-1px); }
 .onboarding-confirm-btn:active { transform: translateY(0); }
 .onboarding-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -200,9 +200,9 @@
 }
 .onboarding-go-btn {
   height: 44px; padding: 0 24px;
-  background: var(--brand-ink); color: var(--accent-fg);
+  background: var(--green); color: white;
   border: none; border-radius: 8px;
   font-family: var(--sans); font-size: 14px; font-weight: 700;
   cursor: pointer; transition: all 0.15s;
 }
-.onboarding-go-btn:hover { background: var(--brand-ink-hover); }
+.onboarding-go-btn:hover { background: var(--green-dim); }
