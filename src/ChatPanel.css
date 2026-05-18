@@ -10,7 +10,7 @@
   flex-direction: column;
   gap: 12px;
   border-left: 1px solid var(--border);
-  background: var(--bg-deep);
+  background: var(--bg-shell);
 }
 .chatpanel-mobile-toggle,
 .chatpanel-mobile-close {
@@ -157,7 +157,7 @@
 .chatbox-msg.user .chatbox-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(74,124,255,0.35);
+  border: 1px solid rgba(39,224,163,0.35);
 }
 .chatbox-msg.assistant .chatbox-bubble {
   background: var(--bg-surface);
@@ -185,7 +185,7 @@
 .chatbox-inline-link {
   color: var(--green);
   text-decoration: underline;
-  text-decoration-color: rgba(74,124,255,0.4);
+  text-decoration-color: rgba(39,224,163,0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
   transition: color 0.15s, text-decoration-color 0.15s;
@@ -233,7 +233,7 @@
 .chatbox-input-row button {
   width: 34px; height: 34px;
   border: none; border-radius: 8px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.15s;
 }
@@ -338,7 +338,7 @@
 .chatbox-results-verified {
   display: inline-flex; align-items: center; justify-content: center;
   width: 12px; height: 12px; border-radius: 50%;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   flex-shrink: 0;
 }
 .chatbox-results-sub {
@@ -385,7 +385,7 @@
 .chatpanel-cta button {
   height: 34px; padding: 0 14px;
   border: none; border-radius: 7px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.2s; width: 100%;
 }

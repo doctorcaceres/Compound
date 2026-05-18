@@ -43,7 +43,7 @@
 .feedback-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
 .feedback-submit {
   height: 32px; padding: 0 14px; border: none; border-radius: 6px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }

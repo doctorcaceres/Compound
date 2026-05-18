@@ -1,38 +1,63 @@
 :root {
-  /* Backgrounds — warm charcoal */
-  --bg-deep: #1a1d23;
-  --bg-card: #22262e;
-  --bg-card-hover: #2a2f38;
-  --bg-surface: #1e2228;
+  /* ============================================================
+     Graphite + Compound Mint — single source of truth
+     ============================================================ */
+
+  /* Backgrounds */
+  --bg-page:        #070A0D;
+  --bg-shell:       #0B1015;
+  --bg-panel:       #111820;
+  --bg-card:        #151D26;
+  --bg-card-hover:  #1A2430;
+  --bg-input:       #0E141B;
 
   /* Borders */
-  --border: #2f343d;
-  --border-light: #3a4049;
+  --border-soft:    #24313D;
+  --border-strong:  #344555;
 
-  /* Text — high contrast on the charcoal background */
-  --text-strong: #ffffff;     /* headers and names */
-  --text-primary: #e2e8f0;    /* body */
-  --text-secondary: #94a3b8;
-  --text-muted: #7a8a9b;
+  /* Text */
+  --text-primary:   #F3F6F8;
+  --text-secondary: #B7C2CC;
+  --text-muted:     #8D9AA8;
+  --text-disabled:  #667380;
+  --text-strong:    #ffffff;   /* h1-h4 and key names */
 
-  /* CHORDIS navy (sector themes — unchanged) */
+  /* Compound Mint accent */
+  --accent:         #27E0A3;
+  --accent-hover:   #35F0B4;
+  --accent-pressed: #16B982;
+  --accent-soft:    rgba(39, 224, 163, 0.12);
+  --accent-border:  rgba(39, 224, 163, 0.36);
+  /* Foreground for text/icons that sit on top of an --accent background.
+     Near-black for legibility on the mint fill. */
+  --accent-fg:      #06110D;
+
+  /* Status */
+  --success: #27E0A3;
+  --warning: #F5B84B;
+  --danger:  #EF6461;
+  --info:    #6BB7FF;
+
+  /* ============================================================
+     Back-compat aliases — existing components reference these
+     names. Mapped onto the new tokens so the rest of the app
+     picks up the new palette without renaming every selector.
+     ============================================================ */
+  --bg-deep:        var(--bg-page);
+  --bg-surface:     var(--bg-input);
+  --border:         var(--border-soft);
+  --border-light:   var(--border-strong);
+  --green:          var(--accent);
+  --green-dim:      var(--accent-hover);
+  --green-glow:     var(--accent-soft);
+  --accent-line:    var(--accent);
+  --amber:          var(--warning);
+  --red:            var(--danger);
+
+  /* CHORDIS navy (kept for sector-theme variants) */
   --navy: #1B3A5C;
   --navy-light: #234B74;
   --navy-glow: rgba(27, 58, 92, 0.25);
-
-  /* Accent — navy blue. (Variable names kept as --green-* to avoid
-     touching the dozens of files that reference them; they're now the
-     navy-blue accent set.) */
-  --green: #4a7cff;
-  --green-dim: #3a6ce8;
-  --green-glow: rgba(74, 124, 255, 0.15);
-
-  /* Accent bar */
-  --accent-line: #4a7cff;
-
-  /* Utility */
-  --amber: #F59E0B;
-  --red: #EF4444;
 
   /* Fonts */
   --mono: 'Space Mono', monospace;

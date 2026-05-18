@@ -19,7 +19,7 @@
   border-radius: 8px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
-  background: var(--green); border: none; color: white;
+  background: var(--green); border: none; color: var(--accent-fg);
 }
 .sch-create-btn:hover { background: var(--green-dim); }
 
@@ -125,14 +125,14 @@
   display: flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 16px;
   border-radius: 999px;
-  background: var(--green); color: white; border: none;
+  background: var(--green); color: var(--accent-fg); border: none;
   font-family: var(--sans); font-size: 13px; font-weight: 700;
   cursor: pointer; transition: all 0.15s;
-  box-shadow: 0 0 0 0 rgba(74,124,255,0.5);
+  box-shadow: 0 0 0 0 rgba(39,224,163,0.5);
 }
 .sch-join-btn:hover {
   background: var(--green-dim);
-  box-shadow: 0 0 0 4px rgba(74,124,255,0.15);
+  box-shadow: 0 0 0 4px rgba(39,224,163,0.15);
 }
 
 /* Coming Soon modal */
@@ -161,7 +161,7 @@
 .sch-cs-modal p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 18px; }
 .sch-cs-btn {
   height: 38px; padding: 0 22px;
-  background: var(--green); color: white; border: none;
+  background: var(--green); color: var(--accent-fg); border: none;
   border-radius: 8px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s;

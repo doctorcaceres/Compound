@@ -212,7 +212,7 @@
 }
 .chat-msg.sent .chat-bubble {
   background: var(--green);
-  color: white;
+  color: var(--accent-fg);
   border-bottom-right-radius: 4px;
 }
 .chat-msg.received .chat-bubble {
@@ -271,7 +271,7 @@
 }
 .send-btn {
   background: var(--green);
-  color: white;
+  color: var(--accent-fg);
 }
 .send-btn:hover { background: var(--green-dim); }
 .send-btn:disabled {
@@ -312,7 +312,7 @@
   font-size: 13px; line-height: 1.5;
 }
 .convo-unread {
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-size: 11px; font-weight: 700;
   min-width: 18px; height: 18px; padding: 0 5px;
   border-radius: 9px;
@@ -336,7 +336,7 @@
   color: var(--green); font-size: 12px;
   cursor: pointer; transition: background 0.15s;
 }
-.chat-room-context:hover { background: rgba(74,124,255,0.22); }
+.chat-room-context:hover { background: rgba(39,224,163,0.22); }
 .chat-room-context strong { color: var(--text-primary); font-weight: 600; margin-left: 2px; }
 
 /* New conversation picker */

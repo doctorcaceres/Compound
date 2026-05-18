@@ -15,7 +15,7 @@
   display: flex; align-items: center; gap: 6px;
   height: 38px; padding: 0 18px;
   border: none; border-radius: 8px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
@@ -71,7 +71,7 @@
 .jobs-submit {
   height: 36px; padding: 0 20px;
   border: none; border-radius: 6px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
@@ -159,7 +159,7 @@
   font-family: var(--mono);
   letter-spacing: 0.5px;
   border-top: 1px dashed var(--border);
-  background: rgba(74,124,255,0.05);
+  background: rgba(39,224,163,0.05);
   border-radius: 6px;
 }
 
@@ -211,7 +211,7 @@
 .job-apply-btn {
   width: 100%; height: 56px;
   border: none; border-radius: 10px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 16px; font-weight: 700;
   letter-spacing: 0.5px;
   cursor: pointer; transition: all 0.2s;

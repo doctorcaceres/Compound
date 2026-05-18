@@ -17,7 +17,7 @@
   display: flex; align-items: center; gap: 6px;
   height: 38px; padding: 0 18px;
   border: none; border-radius: 8px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
@@ -115,7 +115,7 @@
 .cr-submit {
   height: 36px; padding: 0 20px;
   border: none; border-radius: 6px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }
@@ -258,7 +258,7 @@
   display: flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 14px;
   border-radius: 6px;
-  border: none; background: var(--green); color: white;
+  border: none; background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
@@ -317,7 +317,7 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.room-ms.done .room-ms-indicator { background: var(--green); color: white; }
+.room-ms.done .room-ms-indicator { background: var(--green); color: var(--accent-fg); }
 .room-ms.current .room-ms-indicator { background: var(--green-glow); border: 2px solid var(--green); }
 .room-ms-circle {
   width: 10px; height: 10px; border-radius: 50%;
@@ -484,7 +484,7 @@
 .room-conv-input-row button {
   height: 36px; padding: 0 16px;
   border: none; border-radius: 6px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.2s;
 }

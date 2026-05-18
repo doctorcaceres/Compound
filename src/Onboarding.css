@@ -16,10 +16,10 @@
   letter-spacing: 3px; text-transform: uppercase; color: var(--text-primary);
   text-align: center;
 }
-.onboarding-logo .logo-c { color: var(--green); }
+.onboarding-logo .logo-c { color: var(--accent); }
 .onboarding-logo .logo-bar {
   display: block; width: 28px; height: 2px;
-  background: var(--accent-line); margin: 4px auto 0; border-radius: 1px;
+  background: var(--border-strong); margin: 4px auto 0; border-radius: 1px;
 }
 
 .onboarding-main {
@@ -59,7 +59,7 @@
 .onboarding-msg.user .onboarding-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(74,124,255,0.4);
+  border: 1px solid rgba(39,224,163,0.4);
 }
 .onboarding-msg.assistant .onboarding-bubble {
   background: var(--bg-surface);
@@ -171,7 +171,7 @@
   text-align: center;
 }
 .onboarding-send {
-  background: var(--green); color: white; border: none;
+  background: var(--green); color: var(--accent-fg); border: none;
 }
 .onboarding-send:hover:not(:disabled) { background: var(--green-dim); }
 .onboarding-send:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -182,11 +182,11 @@
 }
 .onboarding-confirm-btn {
   height: 42px; padding: 0 22px;
-  background: var(--green); color: white; border: none;
+  background: var(--green); color: var(--accent-fg); border: none;
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s, transform 0.1s;
-  box-shadow: 0 4px 16px rgba(74,124,255,0.35);
+  box-shadow: 0 4px 16px rgba(39,224,163,0.35);
 }
 .onboarding-confirm-btn:hover:not(:disabled) { background: var(--green-dim); transform: translateY(-1px); }
 .onboarding-confirm-btn:active { transform: translateY(0); }
@@ -200,7 +200,7 @@
 }
 .onboarding-go-btn {
   height: 44px; padding: 0 24px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   border: none; border-radius: 8px;
   font-family: var(--sans); font-size: 14px; font-weight: 700;
   cursor: pointer; transition: all 0.15s;

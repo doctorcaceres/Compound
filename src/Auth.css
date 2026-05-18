@@ -8,9 +8,10 @@
   font-family: var(--mono); font-size: 32px; font-weight: 700;
   letter-spacing: 6px; text-transform: uppercase; text-align: center; margin-bottom: 4px;
 }
-.logo-c { color: var(--green); }
+.logo-c { color: var(--accent); }
+/* Subdued accent bar so the mint "C" carries the singular brand accent. */
 .auth-accent-bar {
-  width: 40px; height: 2px; background: var(--accent-line);
+  width: 40px; height: 2px; background: var(--border-strong);
   margin: 0 auto 10px; border-radius: 1px;
 }
 .auth-tagline {
@@ -54,7 +55,7 @@
 
 .btn-primary {
   width: 100%; height: 44px; border: none; border-radius: 8px;
-  background: var(--green); color: white;
+  background: var(--green); color: var(--accent-fg);
   font-family: var(--sans); font-size: 14px; font-weight: 600;
   cursor: pointer; transition: all 0.2s; margin-top: 8px;
 }
