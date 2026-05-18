@@ -1,57 +1,80 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { timeAgo } from './format'
 import {
   loadStoredNewsfeed,
-  refreshIfStale,
+  fetchAndStoreNewsfeed,
   NEWSFEED_REFRESH_EVENT,
   FOCUS_AI_INPUT_EVENT,
 } from './newsfeedClient'
 import './Newsfeed.css'
 
+const REFRESH_HOURS = 12
+
+function isStale(lastFetchedAt) {
+  if (!lastFetchedAt) return true
+  const ms = new Date(lastFetchedAt).getTime()
+  if (Number.isNaN(ms)) return true
+  return (Date.now() - ms) > REFRESH_HOURS * 3600 * 1000
+}
+
 function Newsfeed({ user }) {
   const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+  const [loading, setLoading] = useState(true)   // initial cache read
+  const [refreshing, setRefreshing] = useState(false) // an active AI fetch
+  const [error, setError] = useState(null)
 
-  // Load on mount: read stored items immediately for fast paint,
-  // then trigger a stale-aware refresh in the background.
+  const doFetch = useCallback(async () => {
+    if (!user?.id) return
+    setRefreshing(true)
+    setError(null)
+    try {
+      const { items: fresh } = await fetchAndStoreNewsfeed({ user })
+      if (Array.isArray(fresh) && fresh.length > 0) {
+        setItems(fresh)
+      } else {
+        setError("Couldn't pull any stories — try again in a minute.")
+      }
+    } catch (e) {
+      console.warn('newsfeed: fetch failed', e)
+      setError(`Newsfeed fetch failed: ${e.message}`)
+    } finally {
+      setRefreshing(false)
+    }
+  }, [user])
+
+  // Mount path: read whatever's cached, then ALWAYS fetch fresh if
+  // (a) cache is empty or (b) cooldown has expired. The fetch runs in
+  // the same effect (not a separate hop) so the `refreshing` flag is
+  // set before React re-renders the empty state.
   useEffect(() => {
     if (!user?.id) return
     let active = true
-    setLoading(true)
     ;(async () => {
+      setLoading(true)
       const cached = await loadStoredNewsfeed(user.id, 5)
       if (!active) return
       setItems(cached)
       setLoading(false)
 
-      // Refresh in the background if cached is empty OR cooldown expired.
-      const stale = cached.length === 0 || (() => {
-        const last = user.feed_preferences?.newsfeed_last_fetched_at
-        if (!last) return true
-        return (Date.now() - new Date(last).getTime()) > 12 * 3600 * 1000
-      })()
-      if (stale) {
-        setRefreshing(true)
-        const { items: fresh } = await refreshIfStale({ user })
-        if (active && fresh && fresh.length > 0) setItems(fresh)
-        if (active) setRefreshing(false)
+      const needsFetch =
+        cached.length === 0 ||
+        isStale(user.feed_preferences?.newsfeed_last_fetched_at)
+      if (needsFetch) {
+        await doFetch()
       }
     })()
     return () => { active = false }
-  }, [user?.id])
+  }, [user?.id, doFetch])
 
-  // Listen for cross-component refresh signals (Ask Compound saved
-  // new topics and wants the newsfeed to repopulate).
+  // Cross-component refresh signal: Ask Compound just saved new
+  // topics. Re-read storage; ChatPanel fired this AFTER the actual
+  // AnthropicWeb fetch + DB insert completed, so the rows are there.
   useEffect(() => {
     if (!user?.id) return
     const onRefresh = async () => {
-      setRefreshing(true)
-      // Re-load whatever the latest user object has (parent passes it
-      // down — but we also re-read directly from storage).
       const fresh = await loadStoredNewsfeed(user.id, 5)
       setItems(fresh)
-      setRefreshing(false)
+      setError(null)
     }
     window.addEventListener(NEWSFEED_REFRESH_EVENT, onRefresh)
     return () => window.removeEventListener(NEWSFEED_REFRESH_EVENT, onRefresh)
@@ -62,15 +85,25 @@ function Newsfeed({ user }) {
     window.dispatchEvent(new CustomEvent(FOCUS_AI_INPUT_EVENT))
   }
 
+  // UI state machine — anything that's "we don't have rows yet but we
+  // ARE doing something about it" should read as Loading, not Empty.
+  const busyAndEmpty = (loading || refreshing) && items.length === 0
+  const errorAndEmpty = !!error && items.length === 0 && !refreshing
+
   return (
     <div className="newsfeed">
       <div className="newsfeed-head">
         <div className="newsfeed-title">Your Newsfeed</div>
-        {refreshing && <span className="newsfeed-refreshing">Refreshing…</span>}
+        {refreshing && <span className="newsfeed-refreshing">Pulling stories…</span>}
       </div>
 
-      {loading && items.length === 0 ? (
-        <div className="newsfeed-loading">Loading news…</div>
+      {busyAndEmpty ? (
+        <div className="newsfeed-loading">Pulling fresh news…</div>
+      ) : errorAndEmpty ? (
+        <div className="newsfeed-empty newsfeed-error">
+          {error}
+          <button className="newsfeed-link newsfeed-retry" onClick={doFetch}>Try again</button>
+        </div>
       ) : items.length === 0 ? (
         <div className="newsfeed-empty">
           No news yet. Tell <button className="newsfeed-link" onClick={focusAskCompound}>Ask Compound</button> what topics to track.

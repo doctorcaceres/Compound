@@ -128,10 +128,23 @@ export async function loadStoredNewsfeed(userId, limit = 5) {
 }
 
 // Persist a new set of items, replacing the user's previous batch.
-// Strategy: insert new ones, then delete anything older than the
-// freshest 5. Cheap and avoids race conditions with concurrent reads.
+// Strategy: delete the user's existing rows, then insert the new
+// batch. RLS scopes the delete to the current user automatically.
+// (The previous PostgREST `.not('id','in','("uuid","uuid")')` syntax
+// was silently failing because UUIDs shouldn't be double-quoted in
+// the in-filter — letting old rows pile up and crowd out new ones.)
 async function storeNewsfeed(userId, items) {
   if (!items || items.length === 0) return []
+
+  const { error: delErr } = await supabase
+    .from('newsfeed_items')
+    .delete()
+    .eq('user_id', userId)
+  if (delErr) {
+    console.warn('newsfeed: delete-previous failed', delErr.message)
+    // Continue anyway — duplication is recoverable; total failure isn't.
+  }
+
   const rows = items.map(it => ({
     user_id:     userId,
     headline:    it.headline,
@@ -140,28 +153,13 @@ async function storeNewsfeed(userId, items) {
     summary:     it.summary,
     fetched_at:  new Date().toISOString(),
   }))
-  const { data: inserted, error } = await supabase
+  const { data: inserted, error: insErr } = await supabase
     .from('newsfeed_items')
     .insert(rows)
     .select('id, headline, source_name, source_url, summary, fetched_at')
-  if (error) {
-    console.warn('newsfeed: insert failed', error.message)
+  if (insErr) {
+    console.warn('newsfeed: insert failed', insErr.message)
     return []
-  }
-  // Trim older items so the user table doesn't grow unboundedly.
-  const { data: keep } = await supabase
-    .from('newsfeed_items')
-    .select('id')
-    .eq('user_id', userId)
-    .order('fetched_at', { ascending: false })
-    .limit(5)
-  const keepIds = new Set((keep || []).map(r => r.id))
-  if (keepIds.size > 0) {
-    await supabase
-      .from('newsfeed_items')
-      .delete()
-      .eq('user_id', userId)
-      .not('id', 'in', `(${Array.from(keepIds).map(i => `"${i}"`).join(',')})`)
   }
   return inserted || []
 }
