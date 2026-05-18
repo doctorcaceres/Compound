@@ -372,25 +372,6 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* ---------- Start-a-room CTA ---------- */
-.chatpanel-cta { padding: 16px 16px; }
-.chatpanel-cta h3 {
-  font-size: 13px; font-weight: 600;
-  color: var(--text-primary); margin-bottom: 6px;
-}
-.chatpanel-cta p {
-  font-size: 11.5px; color: var(--text-muted);
-  line-height: 1.5; margin-bottom: 10px;
-}
-.chatpanel-cta button {
-  height: 34px; padding: 0 14px;
-  border: none; border-radius: 7px;
-  background: var(--green); color: white;
-  font-family: var(--sans); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; width: 100%;
-}
-.chatpanel-cta button:hover { background: var(--green-dim); }
-
 /* ========================
    Responsive — narrow screens
    The panel hides by default and a small floating button toggles a

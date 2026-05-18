@@ -488,12 +488,6 @@ function ChatPanel({ user }) {
         </div>
 
         <Newsfeed user={user} />
-
-        <div className="chatpanel-card chatpanel-cta">
-          <h3>Start a Conversation Room</h3>
-          <p>Spin up a focused space — invite partners and execute together.</p>
-          <button onClick={() => navigate('/rooms', { state: { openCreate: true } })}>Create Room</button>
-        </div>
       </aside>
     </>
   )
