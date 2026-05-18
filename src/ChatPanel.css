@@ -132,17 +132,27 @@
   padding: 4px 2px;
 }
 
-.chatbox-msg { display: flex; }
-.chatbox-msg.user { justify-content: flex-end; }
-.chatbox-msg.assistant { justify-content: flex-start; }
+/* Stack the bubble and its citations vertically so the citation pills sit
+   underneath the response text — not as a sibling column that squeezes the
+   bubble into a narrow strip. */
+.chatbox-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 92%;
+}
+.chatbox-msg.user { align-self: flex-end; align-items: flex-end; }
+.chatbox-msg.assistant { align-self: flex-start; align-items: flex-start; }
 .chatbox-bubble {
-  max-width: 85%;
-  padding: 8px 12px;
+  width: 100%;
+  padding: 10px 14px;
   border-radius: 10px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.55;
   white-space: pre-wrap;
-  word-break: break-word;
+  /* Wrap at word boundaries; only break inside words as a last resort
+     for genuinely unbreakable strings (URLs, long IDs). */
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 .chatbox-msg.user .chatbox-bubble {
   background: var(--green-glow);
