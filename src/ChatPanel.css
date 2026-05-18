@@ -8,7 +8,7 @@
   padding: 16px 16px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   border-left: 1px solid var(--border);
   background: var(--bg-deep);
 }
@@ -37,7 +37,17 @@
 }
 
 /* ---------- Chatbox ---------- */
-.chatbox { display: flex; flex-direction: column; min-height: 380px; }
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+  /* Keep the card at its natural size — without flex-shrink:0 the parent
+     flex column would compress the card when total content exceeds the
+     viewport, causing the suggestion chips to bleed past the bottom border
+     and overlap the Newsfeed below. Let the chatpanel scroll instead. */
+  flex-shrink: 0;
+  overflow: hidden;   /* clip rounded corners so children respect the radius */
+}
 .chatbox-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 14px; border-bottom: 1px solid var(--border);

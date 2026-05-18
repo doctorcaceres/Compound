@@ -9,6 +9,7 @@ import {
 import './Newsfeed.css'
 
 const REFRESH_HOURS = 12
+const COLLAPSED_KEY = (userId) => `newsfeed-collapsed:${userId || 'anon'}`
 
 function isStale(lastFetchedAt) {
   if (!lastFetchedAt) return true
@@ -17,11 +18,29 @@ function isStale(lastFetchedAt) {
   return (Date.now() - ms) > REFRESH_HOURS * 3600 * 1000
 }
 
+function readCollapsed(userId) {
+  try { return localStorage.getItem(COLLAPSED_KEY(userId)) === '1' }
+  catch { return false }
+}
+
 function Newsfeed({ user }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)   // initial cache read
   const [refreshing, setRefreshing] = useState(false) // an active AI fetch
   const [error, setError] = useState(null)
+  const [collapsed, setCollapsed] = useState(() => readCollapsed(user?.id))
+
+  // Re-read the saved preference if the signed-in user changes (e.g.
+  // after a logout/login on the same browser).
+  useEffect(() => { setCollapsed(readCollapsed(user?.id)) }, [user?.id])
+
+  const toggleCollapsed = () => {
+    setCollapsed(prev => {
+      const next = !prev
+      try { localStorage.setItem(COLLAPSED_KEY(user?.id), next ? '1' : '0') } catch {}
+      return next
+    })
+  }
 
   const doFetch = useCallback(async () => {
     if (!user?.id) return
@@ -102,13 +121,29 @@ function Newsfeed({ user }) {
   const errorAndEmpty = !!error && items.length === 0 && !refreshing
 
   return (
-    <div className="newsfeed">
+    <div className={`newsfeed${collapsed ? ' collapsed' : ''}`}>
       <div className="newsfeed-head">
         <div className="newsfeed-title">Your Newsfeed</div>
-        {refreshing && <span className="newsfeed-refreshing">Pulling stories…</span>}
+        <div className="newsfeed-head-right">
+          {refreshing && <span className="newsfeed-refreshing">Pulling stories…</span>}
+          <button
+            className="newsfeed-toggle"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? 'Expand newsfeed' : 'Collapse newsfeed'}
+            aria-expanded={!collapsed}
+            title={collapsed ? 'Expand' : 'Collapse'}
+            type="button"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {collapsed
+                ? <polyline points="6 9 12 15 18 9" />
+                : <polyline points="18 15 12 9 6 15" />}
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {busyAndEmpty ? (
+      {!collapsed && (busyAndEmpty ? (
         <div className="newsfeed-loading">Pulling fresh news…</div>
       ) : errorAndEmpty ? (
         <div className="newsfeed-empty newsfeed-error">
@@ -140,13 +175,15 @@ function Newsfeed({ user }) {
             </li>
           ))}
         </ul>
-      )}
+      ))}
 
-      <div className="newsfeed-foot">
-        <button className="newsfeed-link" onClick={focusAskCompound}>
-          Tell Ask Compound how to structure your newsfeed →
-        </button>
-      </div>
+      {!collapsed && (
+        <div className="newsfeed-foot">
+          <button className="newsfeed-link" onClick={focusAskCompound}>
+            Tell Ask Compound how to structure your newsfeed →
+          </button>
+        </div>
+      )}
     </div>
   )
 }
