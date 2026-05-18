@@ -36,6 +36,9 @@
 .post {
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 10px; padding: 18px; margin-bottom: 12px;
+  /* clip child media (post-image-wrap uses negative margins to bleed
+     across the padding) to the card's rounded corners. */
+  overflow: hidden;
   transition: border-color 0.2s; animation: fadeIn 0.3s ease;
 }
 .post:hover { border-color: var(--border-light); }
@@ -67,13 +70,14 @@
 .post-body { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 14px; }
 
 .post-image-wrap {
-  margin: 0 0 14px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border);
+  /* Bleed across the .post padding so the image goes edge-to-edge
+     within the card. Negative margin matches the .post horizontal
+     padding (18px desktop, 14px mobile — see media query below). */
+  margin: 0 -18px 14px;
   background: var(--bg-deep);
   max-height: 480px;
   display: flex; justify-content: center;
+  overflow: hidden;
 }
 .post-image {
   max-width: 100%;
@@ -137,6 +141,7 @@
   .composer { padding: 12px; }
   .composer textarea { font-size: 14px; }
   .post { padding: 14px; }
+  .post-image-wrap { margin: 0 -14px 14px; }
   .post-actions { gap: 4px; flex-wrap: wrap; }
   .post-action { padding: 8px 10px; min-height: 36px; }
   .btn-post { height: 40px; padding: 0 18px; }
