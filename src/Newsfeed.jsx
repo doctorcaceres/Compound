@@ -32,11 +32,22 @@ function Newsfeed({ user }) {
       if (Array.isArray(fresh) && fresh.length > 0) {
         setItems(fresh)
       } else {
-        setError("Couldn't pull any stories — try again in a minute.")
+        // Distinguish silent-success-but-empty from silent-failure
+        // in the dev console, but show the same friendly message to
+        // the user regardless. Never surface API URLs, org IDs, or
+        // status codes to end users.
+        console.warn('newsfeed: fetch returned no items')
+        setError('News is updating — check back shortly.')
       }
     } catch (e) {
-      console.warn('newsfeed: fetch failed', e)
-      setError(`Newsfeed fetch failed: ${e.message}`)
+      // Full diagnostic info for the dev console; the user gets a
+      // generic friendly message no matter what threw.
+      console.warn('newsfeed: fetch threw', {
+        message: e?.message,
+        name: e?.name,
+        cause: e?.cause,
+      })
+      setError('News is updating — check back shortly.')
     } finally {
       setRefreshing(false)
     }

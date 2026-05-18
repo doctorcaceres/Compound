@@ -67,9 +67,23 @@ function extractText(content) {
     .trim()
 }
 
+// Custom error class so callers can tell WHY the fetch failed and
+// keep the verbose Anthropic error body out of user-visible strings.
+export class NewsfeedFetchError extends Error {
+  constructor(kind, message, details) {
+    super(message)
+    this.name = 'NewsfeedFetchError'
+    this.kind = kind                 // 'config' | 'http' | 'parse' | 'empty'
+    this.details = details || null   // raw API body / status etc. (console only)
+  }
+}
+
 // Call Claude with web_search and return up to 5 normalized news items.
+// Throws NewsfeedFetchError on any failure; never returns a partial state.
 async function callAnthropicForNewsfeed({ topics, sector }) {
-  if (!ANTHROPIC_KEY) throw new Error('Missing VITE_ANTHROPIC_API_KEY')
+  if (!ANTHROPIC_KEY) {
+    throw new NewsfeedFetchError('config', 'Anthropic key is not configured for this build')
+  }
 
   const userMessage = (topics && topics.length > 0)
     ? `Find five current news items relevant to: ${topics.join(', ')}.`
@@ -77,30 +91,64 @@ async function callAnthropicForNewsfeed({ topics, sector }) {
 
   const body = {
     model: MODEL,
-    max_tokens: 1500,
+    // Bumped from 1500 — web_search can chew through tokens, and a
+    // truncated response loses the closing ']' so the JSON parse fails.
+    max_tokens: 4000,
     system: NEWSFEED_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
     tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
   }
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify(body),
-  })
+  let res
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
+    })
+  } catch (networkErr) {
+    throw new NewsfeedFetchError('http', 'Network call to Anthropic failed', {
+      cause: networkErr?.message,
+    })
+  }
+
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data?.error?.message || `Newsfeed API error (${res.status})`)
+  if (!res.ok) {
+    // Log every detail the API gave us so we can debug, but the
+    // throw itself has a sanitized short message. Common status
+    // codes: 401 (bad key), 403 (forbidden / browser-access flag),
+    // 429 (rate-limited), 5xx (Anthropic outage).
+    console.warn('[newsfeed] Anthropic API error', {
+      status: res.status,
+      statusText: res.statusText,
+      body: data,
+    })
+    throw new NewsfeedFetchError('http', `Anthropic returned ${res.status}`, {
+      status: res.status,
+      body: data,
+    })
+  }
 
   const text = extractText(data?.content)
   const arr = parseJsonArray(text)
-  if (!arr) throw new Error('Newsfeed response could not be parsed as JSON')
+  if (!arr) {
+    console.warn('[newsfeed] Could not parse JSON from response', {
+      rawText: text?.slice(0, 1000),
+      stopReason: data?.stop_reason,
+      usage: data?.usage,
+    })
+    throw new NewsfeedFetchError('parse', 'Anthropic response did not contain valid JSON', {
+      stopReason: data?.stop_reason,
+      preview: text?.slice(0, 240),
+    })
+  }
 
-  return arr
+  const normalized = arr
     .filter(it => it && typeof it.headline === 'string' && typeof it.source_url === 'string')
     .slice(0, 5)
     .map(it => ({
@@ -109,6 +157,15 @@ async function callAnthropicForNewsfeed({ topics, sector }) {
       source_url:  String(it.source_url).trim(),
       summary:     it.summary ? String(it.summary).trim() : null,
     }))
+
+  if (normalized.length === 0) {
+    console.warn('[newsfeed] Response parsed but contained no usable items', {
+      rawArrayLength: arr.length,
+    })
+    throw new NewsfeedFetchError('empty', 'No usable items in Anthropic response')
+  }
+
+  return normalized
 }
 
 // Read the most recent stored items for a user.
@@ -141,7 +198,7 @@ async function storeNewsfeed(userId, items) {
     .delete()
     .eq('user_id', userId)
   if (delErr) {
-    console.warn('newsfeed: delete-previous failed', delErr.message)
+    console.warn('[newsfeed] delete-previous failed', delErr)
     // Continue anyway — duplication is recoverable; total failure isn't.
   }
 
@@ -158,8 +215,15 @@ async function storeNewsfeed(userId, items) {
     .insert(rows)
     .select('id, headline, source_name, source_url, summary, fetched_at')
   if (insErr) {
-    console.warn('newsfeed: insert failed', insErr.message)
-    return []
+    console.warn('[newsfeed] insert into newsfeed_items failed', insErr)
+    // If the table is missing or RLS is misconfigured this is where
+    // we surface it loudly in the console. Re-throw so the caller
+    // shows the user a friendly error instead of an empty success.
+    throw new NewsfeedFetchError('storage', 'Could not save newsfeed items', {
+      code: insErr.code,
+      hint: insErr.hint,
+      message: insErr.message,
+    })
   }
   return inserted || []
 }
@@ -189,23 +253,34 @@ export function shouldRefreshNewsfeed(user) {
 
 // Force a fresh fetch + store. Returns the new items and the updated
 // feed_preferences object (so the caller can update the user state).
+// Logs each phase to the console so failures are debuggable without
+// resurrecting them in the user-visible error string.
 export async function fetchAndStoreNewsfeed({ user, topics }) {
   const userId = user?.id
   if (!userId) throw new Error('No user')
   const effectiveTopics = (topics && topics.length > 0)
     ? topics
     : (user.feed_preferences?.newsfeed_topics || [])
+
+  console.log('[newsfeed] fetch start', {
+    userId, sector: user.sector, topics: effectiveTopics,
+  })
+
   const items = await callAnthropicForNewsfeed({
     topics: effectiveTopics,
     sector: user.sector,
   })
+  console.log('[newsfeed] anthropic returned items', { count: items.length })
+
   await storeNewsfeed(userId, items)
+  console.log('[newsfeed] stored items in supabase')
+
   const nextPrefs = await persistPreferences(userId, user.feed_preferences, {
     newsfeed_topics: effectiveTopics,
     newsfeed_last_fetched_at: new Date().toISOString(),
   })
-  // Re-read so we return what's actually in the DB (newest first, trimmed).
   const stored = await loadStoredNewsfeed(userId, 5)
+  console.log('[newsfeed] fetch complete', { storedCount: stored.length })
   return { items: stored, feed_preferences: nextPrefs }
 }
 
