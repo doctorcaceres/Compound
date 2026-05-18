@@ -1,48 +1,48 @@
 :root {
   /* ============================================================
-     Ivory / Ink / Copper — editorial light theme
+     Clean white theme — white surfaces, near-black ink, copper accent
      Single source of truth for the entire app.
      ============================================================ */
 
   /* Backgrounds */
-  --bg-page:       #F4F1E8;   /* warm ivory canvas */
-  --bg-shell:      #FBF8F2;   /* header/sidebar shelf */
+  --bg-page:       #FFFFFF;   /* pure white canvas */
+  --bg-shell:      #FAFAFA;   /* subtle off-white for header/sidebar shelf */
   --bg-card:       #FFFFFF;   /* posts, room cards, job cards, profiles */
-  --bg-card-soft:  #F8F5EF;   /* card hover, secondary surface */
+  --bg-card-soft:  #F5F5F5;   /* card hover, secondary surface */
   --bg-input:      #FFFFFF;   /* inputs, textareas, dropdowns */
 
   /* Borders */
-  --border-soft:    #E2D8CA;
-  --border-medium:  #CFC3B4;
-  --border-strong:  #AFA293;
+  --border-soft:    #E5E7EB;
+  --border-medium:  #D1D5DB;
+  --border-strong:  #9CA3AF;
 
-  /* Text */
-  --text-primary:   #151A1F;  /* body, names, headings */
-  --text-secondary: #3F4A55;  /* metadata, timestamps */
-  --text-muted:     #6C7680;  /* placeholders, captions */
-  --text-subtle:    #8A949E;  /* lowest emphasis still legible */
+  /* Text — near-black for body, neutral grey scale below */
+  --text-primary:   #171717;  /* body, names, headings */
+  --text-secondary: #404040;  /* metadata, timestamps */
+  --text-muted:     #737373;  /* placeholders, captions */
+  --text-subtle:    #A3A3A3;  /* lowest emphasis still legible */
 
   /* Brand */
-  --brand-ink:          #151A1F;   /* primary action surfaces (button fills) */
-  --brand-ink-hover:    #2A3038;   /* slightly raised ink for button hover */
-  --brand-copper:       #A7652A;   /* accent — links, active, badges, ai dot */
-  --brand-copper-hover: #8F5522;
-  --brand-copper-soft:  #F1E1D0;   /* tinted backgrounds */
+  --brand-ink:          #171717;   /* primary action surfaces (button fills) */
+  --brand-ink-hover:    #2C2C2C;   /* slightly lifted ink on hover */
+  --brand-copper:       #B45309;   /* accent — links, active, badges, ai dot */
+  --brand-copper-hover: #92400E;
+  --brand-copper-soft:  #FEF3C7;   /* tinted backgrounds */
 
-  /* Sector chip tokens (per spec) */
-  --sector-chip-bg:     #F1E1D0;
-  --sector-chip-text:   #7A451D;
-  --sector-chip-border: #D9B98F;
+  /* Sector chip tokens */
+  --sector-chip-bg:     #FEF3C7;
+  --sector-chip-text:   #92400E;
+  --sector-chip-border: #FCD34D;
 
-  /* Card depth */
-  --card-shadow:       0 1px 2px rgba(21, 26, 31, 0.04);
-  --card-shadow-hover: 0 4px 12px rgba(21, 26, 31, 0.08);
+  /* Card depth (retained as tokens — used only by feedback button) */
+  --card-shadow:       0 1px 2px rgba(23, 23, 23, 0.04);
+  --card-shadow-hover: 0 4px 12px rgba(23, 23, 23, 0.08);
 
   /* Status */
-  --success: #2F7D5F;
-  --warning: #C78A2C;
-  --danger:  #B94A48;
-  --info:    #3F6F9F;
+  --success: #15803D;
+  --warning: #B45309;
+  --danger:  #B91C1C;
+  --info:    #1D4ED8;
 
   /* ============================================================
      Back-compat aliases — existing components reference these
@@ -50,7 +50,7 @@
      rename every selector across 15+ CSS files.
      ============================================================ */
   --bg-deep:        var(--bg-page);
-  --bg-surface:     var(--bg-card-soft);
+  --bg-surface:     var(--bg-input);   /* legacy name for input bg → white */
   --bg-card-hover:  var(--bg-card-soft);
   --bg-panel:       var(--bg-shell);
 
@@ -125,32 +125,4 @@ input::placeholder, textarea::placeholder {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================================================
-   Cards — uniform editorial elevation. Subtle shadow at rest,
-   a touch more on hover. Applied centrally so every card class
-   inherits the same depth without per-component duplication.
-   ============================================================ */
-.post,
-.composer,
-.cr-card,
-.job-card,
-.person-card,
-.sch-card,
-.settings-section,
-.auth-card,
-.onboarding-card,
-.chatpanel-card,
-.profile-room-item,
-.profile-header-card,
-.room-detail-header {
-  box-shadow: var(--card-shadow);
-}
-.post:hover,
-.cr-card:hover,
-.job-card:hover,
-.person-card:hover,
-.profile-room-item:hover {
-  box-shadow: var(--card-shadow-hover);
 }

@@ -79,7 +79,7 @@ function LeftSidebar({ user }) {
       </div>
 
       <div className="sidebar-section">
-        <h4>Schedule</h4>
+        <h4>Your Schedule</h4>
         {loadingMeetings ? (
           <div className="ls-empty">Loading…</div>
         ) : meetings.length === 0 ? (
@@ -101,7 +101,7 @@ function LeftSidebar({ user }) {
       </div>
 
       <div className="sidebar-section">
-        <h4>Rooms</h4>
+        <h4>Your Rooms</h4>
         {loadingRooms ? (
           <div className="ls-empty">Loading…</div>
         ) : rooms.length === 0 ? (
@@ -121,7 +121,7 @@ function LeftSidebar({ user }) {
 
       {isCompany && (
         <div className="sidebar-section">
-          <h4>Jobs</h4>
+          <h4>Your Jobs</h4>
           <button className="ls-jobs-card" onClick={() => navigate('/jobs')}>
             <span className="ls-jobs-num">{activeJobsCount ?? '—'}</span>
             <span className="ls-jobs-label">
