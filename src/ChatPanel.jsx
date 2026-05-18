@@ -13,6 +13,14 @@ import {
 import { searchCompound, looksLikeEntityLookup } from './searchCompound'
 import { sectorTheme, sectorLabel, makeInitials } from './format'
 import { useSpeechToText } from './useSpeechToText'
+import {
+  looksLikeNewsfeedConfig,
+  extractNewsfeedTopics,
+  fetchAndStoreNewsfeed,
+  NEWSFEED_REFRESH_EVENT,
+  FOCUS_AI_INPUT_EVENT,
+} from './newsfeedClient'
+import Newsfeed from './Newsfeed'
 import './ChatPanel.css'
 
 const HOME_SUGGESTIONS = [
@@ -62,6 +70,7 @@ function ChatPanel({ user }) {
   const [historyOpen, setHistoryOpen] = useState(false)
   const [interim, setInterim] = useState('')
   const scrollRef = useRef(null)
+  const inputRef  = useRef(null)
 
   const { supported: speechSupported, listening, error: speechError, toggle: toggleMic } = useSpeechToText({
     onFinal: (text) => {
@@ -111,6 +120,21 @@ function ChatPanel({ user }) {
     if (!el) return
     el.scrollTop = el.scrollHeight
   }, [messages, busy])
+
+  // Newsfeed footer ("Tell Ask Compound how to structure your newsfeed")
+  // dispatches FOCUS_AI_INPUT_EVENT; bring the chatbox input into focus
+  // and pop the mobile overlay if we're on a narrow viewport.
+  useEffect(() => {
+    const onFocus = () => {
+      setMobileOpen(true)
+      requestAnimationFrame(() => {
+        inputRef.current?.focus()
+        inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      })
+    }
+    window.addEventListener(FOCUS_AI_INPUT_EVENT, onFocus)
+    return () => window.removeEventListener(FOCUS_AI_INPUT_EVENT, onFocus)
+  }, [])
 
   const startNewConversation = () => {
     if (busy) return
@@ -168,6 +192,39 @@ function ChatPanel({ user }) {
     const userTurn = { role: 'user', content: q }
     let working = [...messages, userTurn]
     setMessages(working)
+
+    // 1a. Newsfeed configuration intent. If the user is telling Ask
+    // Compound what to put in their newsfeed, extract the topics, save
+    // them to feed_preferences, kick off a fetch, and ack — skip the
+    // normal Claude turn so we don't double-respond.
+    if (looksLikeNewsfeedConfig(q)) {
+      setBusy(true)
+      try {
+        const topics = await extractNewsfeedTopics(q)
+        if (topics.length > 0) {
+          const summary = topics.length === 1
+            ? topics[0]
+            : topics.slice(0, -1).join(', ') + ' and ' + topics.slice(-1)
+          const ack = `Got it — I'll update your newsfeed to track ${summary}. Pulling fresh stories now.`
+          const ackTurn = [...working, { role: 'assistant', content: ack, source: 'system' }]
+          setMessages(ackTurn)
+          await persistConversation(ackTurn, activeConvoId)
+          // Fire & forget the fetch. The Newsfeed component listens
+          // for the refresh event and re-reads stored items on its own.
+          fetchAndStoreNewsfeed({ user, topics })
+            .then(() => window.dispatchEvent(new CustomEvent(NEWSFEED_REFRESH_EVENT)))
+            .catch(err => console.warn('newsfeed config: fetch failed', err.message))
+          setBusy(false)
+          return
+        }
+        // Topic extraction failed — fall through to the normal AI path
+        // so the user still gets a response.
+      } catch {
+        // ditto — never block on the heuristic
+      } finally {
+        setBusy(false)
+      }
+    }
 
     // 1. Local cheap-path (count questions, etc.)
     const localAns = await tryLocalAnswer(q, user)
@@ -390,6 +447,7 @@ function ChatPanel({ user }) {
 
           <div className="chatbox-input-row">
             <input
+              ref={inputRef}
               type="text"
               placeholder="Search Compound, ask anything…"
               value={interim ? (input ? `${input} ${interim}` : interim) : input}
@@ -428,6 +486,8 @@ function ChatPanel({ user }) {
             ))}
           </div>
         </div>
+
+        <Newsfeed user={user} />
 
         <div className="chatpanel-card chatpanel-cta">
           <h3>Start a Conversation Room</h3>

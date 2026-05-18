@@ -1,0 +1,81 @@
+.newsfeed {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 14px 10px;
+}
+
+.newsfeed-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.newsfeed-title {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+.newsfeed-refreshing {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--text-muted); letter-spacing: 0.8px;
+  text-transform: uppercase;
+  animation: nfPulse 1.4s ease-in-out infinite;
+}
+@keyframes nfPulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+
+.newsfeed-loading,
+.newsfeed-empty {
+  padding: 14px 4px;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+}
+
+.newsfeed-list {
+  list-style: none;
+  margin: 0; padding: 6px 0 4px;
+  display: flex; flex-direction: column;
+}
+.newsfeed-item {
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--border);
+}
+.newsfeed-item:last-child { border-bottom: none; }
+
+.newsfeed-headline {
+  display: block;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.newsfeed-headline:hover { color: var(--green); }
+
+.newsfeed-meta {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 4px;
+  font-size: 10.5px; color: var(--text-muted);
+}
+.newsfeed-source {
+  font-family: var(--mono); letter-spacing: 0.4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 60%;
+}
+.newsfeed-dot { color: var(--text-muted); opacity: 0.6; }
+.newsfeed-time { font-family: var(--mono); }
+
+.newsfeed-foot {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.newsfeed-link {
+  background: none; border: none; padding: 0;
+  font-family: var(--sans); font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer; transition: color 0.15s;
+  text-align: left;
+}
+.newsfeed-link:hover { color: var(--green); }
