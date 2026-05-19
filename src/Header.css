@@ -11,10 +11,13 @@
   letter-spacing: 3px; text-transform: uppercase; color: var(--text-primary);
   text-decoration: none;
 }
-.logo .logo-c { color: var(--green); }
+/* Logo color is intentionally pinned to the original brand green and is
+   NOT tied to the --green token so a future accent-color change can't
+   alter the logo's identity. */
+.logo .logo-c { color: #1F9B73; }
 .logo-bar {
   display: block; width: 28px; height: 2px;
-  background: var(--accent-line); margin: 3px auto 0; border-radius: 1px;
+  background: #1F9B73; margin: 3px auto 0; border-radius: 1px;
 }
 .nav-links { display: flex; gap: 8px; }
 .nav-links a {
@@ -36,7 +39,7 @@
 .search-bar:focus-within {
   border-color: var(--green);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(31,155,115,0.12);
+  box-shadow: 0 0 0 3px rgba(74,144,217,0.12);
 }
 .search-bar > svg { flex-shrink: 0; }
 .search-bar input {

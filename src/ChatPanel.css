@@ -167,7 +167,7 @@
 .chatbox-msg.user .chatbox-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(31,155,115,0.35);
+  border: 1px solid rgba(74,144,217,0.35);
 }
 .chatbox-msg.assistant .chatbox-bubble {
   background: var(--bg-surface);
@@ -195,7 +195,7 @@
 .chatbox-inline-link {
   color: var(--green);
   text-decoration: underline;
-  text-decoration-color: rgba(31,155,115,0.4);
+  text-decoration-color: rgba(74,144,217,0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
   transition: color 0.15s, text-decoration-color 0.15s;

@@ -16,10 +16,11 @@
   letter-spacing: 3px; text-transform: uppercase; color: var(--text-primary);
   text-align: center;
 }
-.onboarding-logo .logo-c { color: var(--green); }
+/* Logo color is intentionally pinned to the original brand green. */
+.onboarding-logo .logo-c { color: #1F9B73; }
 .onboarding-logo .logo-bar {
   display: block; width: 28px; height: 2px;
-  background: var(--accent-line); margin: 4px auto 0; border-radius: 1px;
+  background: #1F9B73; margin: 4px auto 0; border-radius: 1px;
 }
 
 .onboarding-main {
@@ -59,7 +60,7 @@
 .onboarding-msg.user .onboarding-bubble {
   background: var(--green-glow);
   color: var(--text-primary);
-  border: 1px solid rgba(31,155,115,0.4);
+  border: 1px solid rgba(74,144,217,0.4);
 }
 .onboarding-msg.assistant .onboarding-bubble {
   background: var(--bg-surface);
@@ -186,7 +187,7 @@
   border-radius: 999px;
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s, transform 0.1s;
-  box-shadow: 0 4px 16px rgba(31,155,115,0.35);
+  box-shadow: 0 4px 16px rgba(74,144,217,0.35);
 }
 .onboarding-confirm-btn:hover:not(:disabled) { background: var(--green-dim); transform: translateY(-1px); }
 .onboarding-confirm-btn:active { transform: translateY(0); }

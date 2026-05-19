@@ -10,22 +10,24 @@
   --border-light: #263040;
 
   /* Text */
-  --text-primary: #E8ECF1;
-  --text-secondary: #8A94A6;
-  --text-muted: #5A6478;
+  --text-primary: #E8EAED;
+  --text-secondary: #9AA0A6;
+  --text-muted: #6B7280;
 
   /* CHORDIS navy */
   --navy: #1B3A5C;
   --navy-light: #234B74;
   --navy-glow: rgba(27, 58, 92, 0.25);
 
-  /* CLINICAL dark green/teal */
-  --green: #1F9B73;
-  --green-dim: #1A8563;
-  --green-glow: rgba(31, 155, 115, 0.14);
+  /* Brand accent (interactive blue). Variable name kept as --green so
+     the 222 existing var(--green...) references pick up the new color
+     without a sweeping rename. */
+  --green: #4A90D9;
+  --green-dim: #3A7BC8;
+  --green-glow: rgba(74, 144, 217, 0.14);
 
-  /* Accent bar - exactly like CLINICAL */
-  --accent-line: #1F9B73;
+  /* Accent bar — matches the brand accent */
+  --accent-line: #4A90D9;
 
   /* Utility */
   --amber: #F59E0B;
@@ -47,6 +49,8 @@ body {
 }
 
 #root { min-height: 100vh; }
+
+h1, h2, h3, h4, h5, h6 { color: #FFFFFF; }
 
 ::selection {
   background: var(--green);
