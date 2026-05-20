@@ -18,12 +18,10 @@ ALTER TABLE public.conversation_rooms
   ADD COLUMN IF NOT EXISTS is_public boolean NOT NULL DEFAULT false;
 
 COMMENT ON COLUMN public.conversation_rooms.is_public IS
-  'When true the room is browsable and joinable by any authenticated user. ' ||
-  'When false only the creator and explicit participants can see or join.';
+  'When true the room is browsable and joinable by any authenticated user. When false only the creator and explicit participants can see or join.';
 
 COMMENT ON COLUMN public.conversation_rooms.description IS
-  'Public summary shown on the Public Rooms list. Required by application ' ||
-  'when is_public = true; optional for private rooms.';
+  'Public summary shown on the Public Rooms list. Required by application when is_public = true; optional for private rooms.';
 
 -- Partial index — most queries either want "only the public ones" or "rooms
 -- I'm in." A partial index keeps this lightweight as the table grows.
