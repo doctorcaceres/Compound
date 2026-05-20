@@ -140,14 +140,11 @@ function ConversationRooms({ user }) {
     await fetchRooms()
   }
 
+  // Confirmation lives in the RoomDetail modal — no native confirm() here.
+  // This handler is only called after the user has clicked "Delete
+  // Permanently" in the modal, so it goes straight to the supabase delete.
   const handleDelete = async (room) => {
     if (actioningRoomId) return
-    const ok = confirm(
-      `Delete "${room.name}"?\n\n` +
-      `This permanently removes the room along with its messages, ` +
-      `documents, and participants. This cannot be undone.`
-    )
-    if (!ok) return
     setActioningRoomId(room.id)
     const { error } = await supabase
       .from('conversation_rooms')
@@ -450,6 +447,7 @@ function RoomDetail({ room, user, onBack, onJoin, onLeave, onDelete, joining }) 
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const fileInputRef = useRef(null)
 
   // Preview mode = viewing a public room as a non-participant. RLS already
@@ -599,7 +597,7 @@ function RoomDetail({ room, user, onBack, onJoin, onLeave, onDelete, joining }) 
                 {isOwner && (
                   <button
                     className="room-delete-btn"
-                    onClick={onDelete}
+                    onClick={() => setConfirmDeleteOpen(true)}
                     disabled={joining}
                     title="Permanently delete this room"
                   >
@@ -775,6 +773,50 @@ function RoomDetail({ room, user, onBack, onJoin, onLeave, onDelete, joining }) 
           .filter(p => p.id !== user.id)}
         presetRoomId={room.id}
       />
+
+      {confirmDeleteOpen && (
+        <div
+          className="room-delete-modal-overlay"
+          onClick={() => !joining && setConfirmDeleteOpen(false)}
+        >
+          <div
+            className="room-delete-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="room-delete-modal-title"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 id="room-delete-modal-title" className="room-delete-modal-title">
+              Are you sure you want to delete this room?
+            </h3>
+            <p className="room-delete-modal-text">
+              All messages, documents, and participant history will be
+              permanently deleted. Make sure you have backed up any important
+              documents before proceeding.
+            </p>
+            <div className="room-delete-modal-actions">
+              <button
+                className="room-delete-modal-cancel"
+                onClick={() => setConfirmDeleteOpen(false)}
+                disabled={joining}
+              >
+                Cancel
+              </button>
+              <button
+                className="room-delete-modal-confirm"
+                onClick={() => {
+                  setConfirmDeleteOpen(false)
+                  onDelete?.()
+                }}
+                disabled={joining}
+                autoFocus
+              >
+                {joining ? 'Deleting…' : 'Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -648,6 +648,61 @@
   background: var(--red); color: white;
 }
 .room-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Delete confirmation modal — replaces window.confirm() so we control
+   the wording, button order, and the destructive button's color. */
+.room-delete-modal-overlay {
+  position: fixed; inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.12s ease;
+}
+.room-delete-modal {
+  width: 100%; max-width: 460px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+.room-delete-modal-title {
+  font-size: 17px; font-weight: 600;
+  color: #FFFFFF;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+.room-delete-modal-text {
+  font-size: 13.5px; line-height: 1.55;
+  color: var(--text-primary);
+  margin-bottom: 22px;
+}
+.room-delete-modal-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+.room-delete-modal-cancel {
+  height: 38px; padding: 0 18px;
+  background: none; color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.room-delete-modal-cancel:hover:not(:disabled) {
+  color: var(--text-primary); border-color: var(--text-muted);
+}
+.room-delete-modal-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+.room-delete-modal-confirm {
+  height: 38px; padding: 0 18px;
+  background: var(--red); color: white;
+  border: none; border-radius: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.room-delete-modal-confirm:hover:not(:disabled) {
+  background: #DC2626;   /* darker red — there's no --red-dim token yet */
+}
+.room-delete-modal-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 .room-preview-banner {
   display: flex; align-items: center; gap: 8px;
   margin-top: 14px;
