@@ -491,6 +491,159 @@
 .room-conv-input-row button:hover:not(:disabled) { background: var(--green-dim); }
 .room-conv-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Read-only banner shown in a public room's conversation tab when the
+   viewer is previewing (not yet a participant). */
+.room-conv-readonly {
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ============================================================
+   Two-column layout: Your Rooms (private) | Public Rooms
+   ============================================================ */
+.cr-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.cr-column {
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.cr-column-head {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.cr-column-head h3 {
+  font-size: 14px; font-weight: 600;
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text-secondary);
+}
+.cr-column-count {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--text-muted);
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+/* In a column the cards stack vertically — override the autofill grid
+   on .cr-list when scoped under a column with .cr-list-stack. */
+.cr-list-stack {
+  grid-template-columns: 1fr;
+}
+
+/* Public-room card variant — slightly different chrome (description,
+   action row) and a "PUBLIC" badge in place of the status pill. The
+   card itself is not the clickable target (the action buttons are),
+   so override the cursor inherited from .cr-card. */
+.cr-card-public { cursor: default; }
+.cr-card-public:hover { transform: none; border-color: var(--border); }
+.cr-public-badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 4px;
+  background: var(--green-glow); color: var(--green);
+  border: 1px solid var(--green);
+}
+.cr-card-description {
+  font-size: 12.5px; line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  /* Cap descriptions at three lines so cards stay roughly even height
+     in a stacked column. Full description shows on the detail page. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cr-card-actions {
+  display: flex; gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.cr-card-action {
+  flex: 1;
+  height: 34px;
+  border-radius: 6px;
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.cr-card-action:disabled { opacity: 0.5; cursor: not-allowed; }
+.cr-preview {
+  background: none; color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.cr-preview:hover:not(:disabled) { color: var(--text-primary); border-color: var(--text-muted); }
+.cr-join {
+  background: var(--green); color: white; border: none;
+}
+.cr-join:hover:not(:disabled) { background: var(--green-dim); }
+.cr-leave {
+  background: none; color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.cr-leave:hover:not(:disabled) { color: var(--red); border-color: var(--red); }
+.cr-owner-tag {
+  background: var(--bg-surface); color: var(--text-muted);
+  border: 1px solid var(--border);
+  cursor: default;
+}
+
+/* Create-form description textarea — same chrome as text inputs. */
+.cr-description-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--sans); font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.cr-description-input:focus { border-color: var(--green); }
+
+/* Room detail — Join / Leave header buttons and preview banner */
+.room-join-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 14px;
+  background: var(--green); color: white; border: none;
+  border-radius: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.room-join-btn:hover:not(:disabled) { background: var(--green-dim); }
+.room-join-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.room-leave-btn {
+  height: 34px; padding: 0 14px;
+  background: none; color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.room-leave-btn:hover:not(:disabled) { color: var(--red); border-color: var(--red); }
+.room-leave-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.room-preview-banner {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--green-glow);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 12.5px; font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .conversationrooms-page, .room-detail { padding: 16px 12px; }
   .cr-header { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -498,6 +651,7 @@
   .cr-form-row { grid-template-columns: 1fr; }
   .cr-list { grid-template-columns: 1fr; }
   .cr-card { padding: 16px; }
+  .cr-columns { grid-template-columns: 1fr; gap: 28px; }
   .room-title-row { flex-direction: column; gap: 12px; }
   .room-header-actions { flex-wrap: wrap; gap: 6px; }
   .room-overview { grid-template-columns: 1fr; }
@@ -505,5 +659,5 @@
   .room-tab { white-space: nowrap; flex-shrink: 0; min-height: 40px; }
   .room-milestones { flex-wrap: wrap; gap: 14px; }
   .room-conv-tab { min-height: 320px; }
-  .room-invite-btn, .room-upload-btn, .room-video-btn { min-height: 40px; }
+  .room-invite-btn, .room-upload-btn, .room-video-btn, .room-join-btn, .room-leave-btn { min-height: 40px; }
 }
