@@ -140,6 +140,25 @@ function ConversationRooms({ user }) {
     await fetchRooms()
   }
 
+  const handleDelete = async (room) => {
+    if (actioningRoomId) return
+    const ok = confirm(
+      `Delete "${room.name}"?\n\n` +
+      `This permanently removes the room along with its messages, ` +
+      `documents, and participants. This cannot be undone.`
+    )
+    if (!ok) return
+    setActioningRoomId(room.id)
+    const { error } = await supabase
+      .from('conversation_rooms')
+      .delete()
+      .eq('id', room.id)
+    setActioningRoomId(null)
+    if (error) { alert(error.message); return }
+    await fetchRooms()
+    navigate('/rooms')
+  }
+
   const activeRoom = id ? rooms.find(r => String(r.id) === id) : null
 
   if (id && !loading && !activeRoom) {
@@ -159,6 +178,7 @@ function ConversationRooms({ user }) {
         onBack={() => navigate('/rooms')}
         onJoin={() => handleJoin(activeRoom)}
         onLeave={() => handleLeave(activeRoom)}
+        onDelete={() => handleDelete(activeRoom)}
         joining={actioningRoomId === activeRoom.id}
       />
     )
@@ -421,7 +441,7 @@ const ACCEPTED_DOC_TYPES = [
   '.png', '.jpg', '.jpeg', '.webp', '.gif',
 ].join(',')
 
-function RoomDetail({ room, user, onBack, onJoin, onLeave, joining }) {
+function RoomDetail({ room, user, onBack, onJoin, onLeave, onDelete, joining }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [participants, setParticipants] = useState([])
   const [documents, setDocuments] = useState([])
@@ -574,6 +594,17 @@ function RoomDetail({ room, user, onBack, onJoin, onLeave, joining }) {
                     title="Leave this public room"
                   >
                     {joining ? 'Leaving…' : 'Leave'}
+                  </button>
+                )}
+                {isOwner && (
+                  <button
+                    className="room-delete-btn"
+                    onClick={onDelete}
+                    disabled={joining}
+                    title="Permanently delete this room"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /></svg>
+                    {joining ? 'Deleting…' : 'Delete'}
                   </button>
                 )}
               </>

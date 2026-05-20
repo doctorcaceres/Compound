@@ -633,6 +633,21 @@
 }
 .room-leave-btn:hover:not(:disabled) { color: var(--red); border-color: var(--red); }
 .room-leave-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Owner-only destructive action. Permanent red treatment (rather than
+   red-on-hover like Leave) signals irreversibility before the click. */
+.room-delete-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 14px;
+  background: none; color: var(--red);
+  border: 1px solid var(--red); border-radius: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.room-delete-btn:hover:not(:disabled) {
+  background: var(--red); color: white;
+}
+.room-delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .room-preview-banner {
   display: flex; align-items: center; gap: 8px;
   margin-top: 14px;
@@ -659,5 +674,5 @@
   .room-tab { white-space: nowrap; flex-shrink: 0; min-height: 40px; }
   .room-milestones { flex-wrap: wrap; gap: 14px; }
   .room-conv-tab { min-height: 320px; }
-  .room-invite-btn, .room-upload-btn, .room-video-btn, .room-join-btn, .room-leave-btn { min-height: 40px; }
+  .room-invite-btn, .room-upload-btn, .room-video-btn, .room-join-btn, .room-leave-btn, .room-delete-btn { min-height: 40px; }
 }
